@@ -3,28 +3,90 @@ package gg.galaxygaming.ts;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
+import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 public class JanetTS {
-    private static String USERNAME = "serveradmin";
-    private static String PASSWORD = "serveradminpassword";
-    private static String IP = "0.0.0.0";
+    private static JanetTS INSTANCE;
+    private final List<String> devs = Arrays.asList("pupnewfster", "Chief");
+    private JanetConfig janetConfig = new JanetConfig();
+    private JanetSlack slack = new JanetSlack();
+    private JanetAI ai = new JanetAI();
+    private static TS3Query query;
+    private static TS3Api API;
+    private static int clientId;
+
+    public JanetTS() {
+        this.janetConfig.setConfig();
+        this.janetConfig.loadConfig();
+        this.slack.init(this.janetConfig);
+        this.ai.initiate();
+    }
 
     public static void main(String[] args) {
+        INSTANCE = new JanetTS();
+        JanetConfig jConfig = getInstance().getConfig();
         final TS3Config config = new TS3Config();
-        config.setHost(IP);
+        config.setHost(jConfig.getString("tsHost"));
         config.setDebugLevel(Level.ALL);
 
-        final TS3Query query = new TS3Query(config);
+        query = new TS3Query(config);
         query.connect();
 
-        final TS3Api api = query.getApi();
-        api.login(USERNAME, PASSWORD);
-        api.selectVirtualServerById(1);
-        api.setNickname("Janet");
-        api.sendChannelMessage("Janet is online!");
-        // We're done, disconnect
+        API = query.getApi();
+        getApi().login(jConfig.getString("tsUsername"), jConfig.getString("tsPassword"));
+        getApi().selectVirtualServerById(1);
+        getApi().setNickname("Janet");
+        getApi().sendChannelMessage("Janet is online!");
+
+        // Get our own client ID by running the "whoami" command
+        clientId = getApi().whoAmI().getId();
+
+        // Listen to chat in the channel the query is currently in
+        // As we never changed the channel, this will be the default channel of the server
+        getApi().registerEvent(TS3EventType.TEXT_CHANNEL, 0);
+
+        // Register the event listener
+        getApi().addTS3Listeners(new Listeners());
+    }
+
+    public static JanetTS getInstance() {
+        return INSTANCE;
+    }
+
+    public static int getClientId() {
+        return clientId;
+    }
+
+    public static TS3Api getApi() {
+        return API;
+    }
+
+    public void sendTSMessage(String message) {
+        getApi().sendChannelMessage(message);
+    }
+
+    public void disconnect() {
+        this.slack.disconnect();
         query.exit();
+    }
+
+    public JanetConfig getConfig() {
+        return this.janetConfig;
+    }
+
+    public boolean isDev(String name) {
+        return this.devs.contains(name);
+    }
+
+    public List<String> getDevs() {
+        return this.devs;
+    }
+
+    public JanetSlack getSlack() {
+        return this.slack;
     }
 }
