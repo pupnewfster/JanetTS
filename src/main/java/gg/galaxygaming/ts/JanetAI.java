@@ -11,7 +11,6 @@ public class JanetAI {//TODO: Upgrade
     private static String[] drunkMessages = new String[10];
     private static String[] tiltMessages = new String[8];
     private static JanetRandom r = new JanetRandom();
-    private String JanetName = "Janet: ";
     private JanetSlack slack = new JanetSlack();
 
     public void parseMessage(String name, String message, Source s, boolean isPM, JanetSlack.SlackUser user) {
@@ -29,10 +28,10 @@ public class JanetAI {//TODO: Upgrade
             else if (message.toLowerCase().startsWith("!slack "))
                 slack.sendMessage(name + ": " + message.replaceFirst("!slack ", ""));
         } else*/ if (message.toLowerCase().contains("what time is it") || message.toLowerCase().contains("what is the time"))
-            result = JanetName + "The time is " + time();
+            result = "The time is " + time();
         else if (message.toLowerCase().contains("what day is it") || message.toLowerCase().contains("what is the date") ||
                 message.toLowerCase().contains("whats the date") || message.toLowerCase().contains("what's the date"))
-            result = JanetName + "The date is: " + date();
+            result = "The date is: " + date();
         else if (message.toLowerCase().contains("can i be op") || message.toLowerCase().contains("may i be op") ||
                 message.toLowerCase().contains("can i have op") || message.toLowerCase().contains("may i have op") ||
                 message.toLowerCase().contains("can i get op") || message.toLowerCase().contains("may i get op") ||
@@ -45,57 +44,57 @@ public class JanetAI {//TODO: Upgrade
                 message.toLowerCase().contains("admin me") || message.toLowerCase().contains("make me mod") ||
                 message.toLowerCase().contains("make me admin") || message.toLowerCase().contains("make me op") ||
                 message.toLowerCase().contains("promote me"))
-            result = JanetName + "You may only earn the rank, no free promotions";
+            result = "You may only earn the rank, no free promotions";
         else if (message.toLowerCase().contains("janet")) {
             if (message.toLowerCase().contains("how are you") || message.toLowerCase().contains("what is up") ||
                     message.toLowerCase().contains("sup") || message.toLowerCase().contains("whats up") ||
                     message.toLowerCase().contains("how was your day"))
-                result = JanetName + feelingMessages[r.memeRandom(feelingMessages.length)];
+                result = feelingMessages[r.memeRandom(feelingMessages.length)];
             else if (message.toLowerCase().startsWith("hello") || message.toLowerCase().startsWith("hey") ||
                     message.toLowerCase().startsWith("hi") || message.toLowerCase().startsWith("hai"))
-                result = JanetName + heyMessages.get(r.memeRandom(heyMessages.size()));
+                result = heyMessages.get(r.memeRandom(heyMessages.size()));
             else if (message.toLowerCase().contains("i love you") || message.toLowerCase().contains("do you love me") ||
                     message.toLowerCase().contains("i wub you") || message.toLowerCase().contains("do you wub me") ||
                     message.toLowerCase().contains("love me")) {
                 if (JanetTS.getInstance().isDev(name))
-                    result = JanetName + "I love you " + name + ".";
+                    result = "I love you " + name + ".";
                 else
-                    result = JanetName + "Well I can give you a hug... but I am rejecting your love.";
+                    result = "Well I can give you a hug... but I am rejecting your love.";
             } else if (message.toLowerCase().contains("can i have a hug") || message.toLowerCase().contains("can you give me a hug") ||
                     message.toLowerCase().contains("can you hug me") || message.toLowerCase().contains("hug me") ||
                     message.toLowerCase().contains("give me a hug") || message.toLowerCase().contains("gimme a hug") ||
                     message.toLowerCase().contains("hug me") || message.toLowerCase().contains("i demand a hug") ||
                     message.toLowerCase().contains("can you gimme a hug")) {
                 if (JanetTS.getInstance().isDev(name))
-                    result = JanetName + "Yey *hugs " + name + " while kissing them on the cheek*.";
+                    result = "Yey *hugs " + name + " while kissing them on the cheek*.";
                 else
-                    result = JanetName + "Sure *hugs " + name + "*.";
+                    result = "Sure *hugs " + name + "*.";
             } else if (message.toLowerCase().contains("can i have a kiss") || message.toLowerCase().contains("can you give me a kiss") ||
                     message.toLowerCase().contains("can you kiss me") || message.toLowerCase().contains("kiss me") ||
                     message.toLowerCase().contains("give me a kiss") || message.toLowerCase().contains("gimme a kiss") ||
                     message.toLowerCase().contains("can you gimme a kiss")) {
                 if (JanetTS.getInstance().isDev(name))
-                    result = JanetName + "Ok, *kisses " + name + "*.";
+                    result = "Ok, *kisses " + name + "*.";
                 else
-                    result = JanetName + "No, *slaps " + name + "*.";
+                    result = "No, *slaps " + name + "*.";
             } else if (message.toLowerCase().contains("i see you") || message.toLowerCase().contains("i am following you"))
-                result = JanetName + stalkerMessages[r.memeRandom(stalkerMessages.length)];
+                result = stalkerMessages[r.memeRandom(stalkerMessages.length)];
             else if (message.toLowerCase().contains("your drunk") || message.toLowerCase().contains("you are drunk") ||
                     message.toLowerCase().contains("you're drunk") || message.toLowerCase().contains("is drunk"))
-                result = JanetName + drunkMessages[r.memeRandom(drunkMessages.length)];
+                result = drunkMessages[r.memeRandom(drunkMessages.length)];
             else if (message.toLowerCase().contains("tilt"))
-                result = JanetName + tiltMessages[r.memeRandom(tiltMessages.length)];
+                result = tiltMessages[r.memeRandom(tiltMessages.length)];
             else
-                result = JanetName + janetNamed[r.memeRandom(janetNamed.length)];
+                result = janetNamed[r.memeRandom(janetNamed.length)];
         }
         if (result != null)
             sendMessage(result, s, isPM, user);
     }
 
     public void sendMessage(String message, Source s, boolean isPM, JanetSlack.SlackUser user) {
-        if (s.equals(Source.Teamspeak)) {
-            JanetTS.getInstance().sendTSMessage(message);
-        } else if (s.equals(Source.Slack)) {
+        if (s.equals(Source.TeamSpeak))
+            s.sendMessage(message);
+        else if (s.equals(Source.Slack)) {
             if (!isPM)
                 JanetTS.getInstance().sendTSMessage("To Slack - " + message);
             slack.sendMessage(message, isPM, user);
@@ -268,10 +267,5 @@ public class JanetAI {//TODO: Upgrade
         String month = Integer.toString(c.get(Calendar.MONTH) + 1);
         String year = Integer.toString(c.get(Calendar.YEAR));
         return dayOfWeek(c.get(Calendar.DAY_OF_WEEK)) + " " + month + "/" + day + "/" + year;
-    }
-
-    public enum Source {
-        Teamspeak,
-        Slack;
     }
 }

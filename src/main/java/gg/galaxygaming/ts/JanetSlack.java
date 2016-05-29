@@ -20,8 +20,7 @@ public class JanetSlack {
     private static HashMap<Integer, ArrayList<String>> helpLists = new HashMap<>();
     private static boolean justLoaded = true, isConnected = false, stopping = false;
     private static String token, channel, channelID, latestInChanel;
-    private static Timer historyReader, keepAlive;
-    private static JanetRandom r = new JanetRandom();
+    private static Timer historyReader;
     private static URL hookURL;
     //JanetWarn warns = new JanetWarn();
     JanetConfig config;
@@ -50,16 +49,9 @@ public class JanetSlack {
         historyReader.cancel();
         userMap.clear();
         helpLists.clear();
-        keepAlive.cancel();
         sendMessage("Disconnected.");
         sendPost("https://slack.com/api/users.setPresence?token=" + token + "&presence=away&pretty=1");
         isConnected = false;
-    }
-
-    public void handleIngameChat(String message) {
-        for (SlackUser u : userMap.values())
-            if (u.viewingChat())
-                u.sendPrivateMessage(message);
     }
 
     public void sendMessage(String message, boolean isPM, SlackUser u) {
@@ -234,10 +226,10 @@ public class JanetSlack {
         }
         setUserChannels();
         historyReader = new Timer("HistoryReader");
-        historyReader.scheduleAtFixedRate(new HistoryTask(), 0, 1000);//Can this be async or is it already async
-        keepAlive = new Timer("KeepAlive");
-        keepAlive.scheduleAtFixedRate(new AliveTask(), 0, 25 * 60 * 1000);//Can this be async or is it already async
+        historyReader.scheduleAtFixedRate(new HistoryTask(), 0, 1000);
         setHelp();
+        sendPost("https://slack.com/api/users.setPresence?token=" + token + "&presence=auto&pretty=1");
+        sendPost("https://slack.com/api/users.setActive?token=" + token + "&pretty=1");
         sendMessage("Connected.");
         isConnected = true;
     }
@@ -268,10 +260,6 @@ public class JanetSlack {
         }
     }
 
-    private String corTime(String time) {
-        return time.length() == 1 ? "0" + time : time;
-    }
-
     private String getLine(int page, int time, ArrayList<String> helpList) {
         page *= 10;
         if (helpList.size() < time + page + 1 || time == 10)
@@ -286,6 +274,7 @@ public class JanetSlack {
         helpLists.put(0, (ArrayList<String>) temp.clone());//Member
         temp.add("!meme <number> ~ Generate a number between 0 and <number>.");
         helpLists.put(1, (ArrayList<String>) temp.clone());//Admin
+        temp.add("!exit ~ Makes Janet disconnect.");
         helpLists.put(2, (ArrayList<String>) temp.clone());//Owner
         helpLists.put(3, (ArrayList<String>) temp.clone());//Primary owner
         temp.clear();
@@ -293,7 +282,7 @@ public class JanetSlack {
 
     private void sendSlackChat(SlackUser info, String message, boolean isPM) {
         if (!info.isMember()) {
-            sendMessage("Error: You are restricted or ultra restricted", isPM, info);
+            sendMessage("Error: You are restricted or ultra restricted.", isPM, info);
             return;
         }
         final String name = info.getName();
@@ -329,36 +318,23 @@ public class JanetSlack {
                 }
                 if (page + 1 < totalpages)
                     m += "Type !help " + Integer.toString(page + 2) + " to read the next page.\n";
-            } else if (message.startsWith("!rank")) {
-                m += info.getRankName() + "\n";
-            } else if (message.startsWith("!meme ") && info.isAdmin()) {
-                int applePie = 0;
-                try {
-                    applePie = Integer.parseInt(message.split(" ")[1]);
-                } catch (Exception e) {
+            } else {
+                if (JanetTS.getInstance().getCommandHandler().handleCommand(message, new Info(info.getName(), isPM, info), Source.Slack))
+                    return;
+                if (!isPM) {
+                    JanetTS.getInstance().sendTSMessage("From Slack - " + name + ": " + message);
+                    return;
                 }
-                m += r.memeRandom(applePie) + "\n";
-            } else if ((message.startsWith("!showchat") || message.startsWith("!togglechat") || message.startsWith("!showingamechat") || message.startsWith("!ingamechat")) && info.isAdmin()) {
-                if (!isPM)
-                    m += "Error: You must pm me to be able to view in game chat.\n";
-                else {
-                    m += (info.viewingChat() ? "No longer" : "You are now") + " viewing the in game chat.\n";
-                    info.toggleViewingChat();
-                }
-            } else if (!isPM) {
-                JanetTS.getInstance().sendTSMessage("From Slack - " + name + ": " + message);
-                return;
             }
             sendMessage(m, isPM, info);
-        } else if (!isPM) {
+        } else if (!isPM)
             JanetTS.getInstance().sendTSMessage("From Slack - " + name + ": " + message);
-        }
         JanetAI ai = new JanetAI();
-        ai.parseMessage(name, message, JanetAI.Source.Slack, isPM, info);
+        ai.parseMessage(name, message, Source.Slack, isPM, info);
     }
 
     public class SlackUser {
-        private boolean justLoaded = true, viewingChat = false;
+        private boolean justLoaded = true;
         private String id, name, latest, channel;
         private int rank = 0;
 
@@ -431,14 +407,6 @@ public class JanetSlack {
             return "Error";
         }
 
-        public boolean viewingChat() {
-            return this.viewingChat;
-        }
-
-        public void toggleViewingChat() {
-            this.viewingChat = !this.viewingChat;
-        }
-
         public void setJustLoaded(boolean loaded) {
             this.justLoaded = loaded;
         }
@@ -490,13 +458,6 @@ public class JanetSlack {
         public void run() {
             getHistory();
             getPms();
-        }
-    }
-
-    private class AliveTask extends TimerTask {
-        public void run() {
-            sendPost("https://slack.com/api/users.setPresence?token=" + token + "&presence=auto&pretty=1");
-            sendPost("https://slack.com/api/users.setActive?token=" + token + "&pretty=1");
         }
     }
 }

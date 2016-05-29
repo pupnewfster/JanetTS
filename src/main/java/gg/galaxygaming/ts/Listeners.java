@@ -4,6 +4,8 @@ import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.*;
 
 public class Listeners extends TS3EventAdapter {
+    private JanetAI ai = new JanetAI();
+
     @Override
     public void onTextMessage(TextMessageEvent e) {
         // Only react to channel messages not sent by the query itself
@@ -19,12 +21,14 @@ public class Listeners extends TS3EventAdapter {
                 Permission perm = permissions.get(i);
                 System.out.println(perm.getName() + " " + perm.getValue() + " " + perm.isNegated() + " " + perm.isSkipped());
             }*/
-            String message = e.getMessage().toLowerCase();
-            if (message.equalsIgnoreCase("!exit")) {
-                JanetTS.getInstance().disconnect();
-                return;
-            } else
-                JanetTS.getInstance().getSlack().sendMessage(e.getInvokerName() + ": " + message);
+            String message = e.getMessage(), name = e.getInvokerName();
+            boolean valid = false;
+            if (message.startsWith("!"))
+                valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, new Info(name), Source.TeamSpeak);
+            if (!valid) {
+                JanetTS.getInstance().getSlack().sendMessage(name + ": " + message);
+                this.ai.parseMessage(name, message, Source.TeamSpeak, false, null);
+            }
         }
     }
 

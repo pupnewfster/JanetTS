@@ -15,6 +15,7 @@ public class JanetTS {
     private JanetConfig janetConfig = new JanetConfig();
     private JanetSlack slack = new JanetSlack();
     private JanetAI ai = new JanetAI();
+    private CommandHandler cmdHandler = new CommandHandler();
     private static TS3Query query;
     private static TS3Api API;
     private static int clientId;
@@ -24,6 +25,7 @@ public class JanetTS {
         this.janetConfig.loadConfig();
         this.slack.init(this.janetConfig);
         this.ai.initiate();
+        this.cmdHandler.setup();
     }
 
     public static void main(String[] args) {
@@ -40,7 +42,7 @@ public class JanetTS {
         getApi().login(jConfig.getString("tsUsername"), jConfig.getString("tsPassword"));
         getApi().selectVirtualServerById(1);
         getApi().setNickname("Janet");
-        getApi().sendChannelMessage("Janet is online!");
+        getApi().sendChannelMessage("Connected.");
 
         // Get our own client ID by running the "whoami" command
         clientId = getApi().whoAmI().getId();
@@ -49,7 +51,6 @@ public class JanetTS {
         // As we never changed the channel, this will be the default channel of the server
         getApi().registerEvent(TS3EventType.TEXT_CHANNEL, 0);
 
-        // Register the event listener
         getApi().addTS3Listeners(new Listeners());
     }
 
@@ -71,6 +72,7 @@ public class JanetTS {
 
     public void disconnect() {
         this.slack.disconnect();
+        sendTSMessage("Disconnected.");
         query.exit();
     }
 
@@ -80,6 +82,10 @@ public class JanetTS {
 
     public boolean isDev(String name) {
         return this.devs.contains(name);
+    }
+
+    public CommandHandler getCommandHandler() {
+        return this.cmdHandler;
     }
 
     public List<String> getDevs() {
