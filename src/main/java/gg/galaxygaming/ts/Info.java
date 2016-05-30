@@ -6,11 +6,13 @@ public class Info {
     private boolean isPM;
 
     public Info(String sender) {
-        this(sender, false, null);
+        this.sender = sender;
+        this.isPM = false;
+        this.slackUser = null;
     }
 
-    public Info(String sender, boolean isPM, JanetSlack.SlackUser slackUser) {
-        this.sender = sender;
+    public Info(JanetSlack.SlackUser slackUser, boolean isPM) { //Should the source also be part of info
+        this.sender = slackUser.getName();
         this.isPM = isPM;
         this.slackUser = slackUser;
     }

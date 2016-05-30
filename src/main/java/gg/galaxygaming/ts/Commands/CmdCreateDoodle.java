@@ -11,7 +11,7 @@ public class CmdCreateDoodle extends Cmd {
     @Override
     public boolean performCommand(String[] args, Source source, Info info) {
         if (args.length < 3) {
-            source.sendMessage("Error: Missing arguments. The usage is " + getUsage() + ".");
+            source.sendMessage("Error: Missing arguments. The usage is " + getUsage() + ".", info);
             return true;
         }
         String title = args[0];
@@ -27,7 +27,7 @@ public class CmdCreateDoodle extends Cmd {
             }
         }
         if (times.length != 2) {
-            source.sendMessage("Error: you must have give a start and end time.");
+            source.sendMessage("Error: you must have give a start and end time.", info);
             return true;
         }
         String start = times[0], end = times[1];
@@ -38,7 +38,7 @@ public class CmdCreateDoodle extends Cmd {
         String timeOpts = "";
         double s = to24Hour(start), e = to24Hour(end);
         if (s == -1 || e == -1) {
-            source.sendMessage("Error: The given time is not valid.");
+            source.sendMessage("Error: The given time is not valid.", info);
             return true;
         }
         while (e >= s) {
@@ -79,18 +79,7 @@ public class CmdCreateDoodle extends Cmd {
                 day = "0" + day;
             timeInfo += "&" + year + month + day + "=" + timeOpts;
         }
-        String url = "http://doodle.com/create?type=date&locale=en&location=Teamspeak&title=" + title + "&name=Janet" + timeInfo;
-        source.sendMessage(url);
-        /*try { //Does this do anything of use?
-            URL obj = new URL(url);
-            HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-            con.setRequestMethod("POST");
-            InputStream is = con.getInputStream();
-            is.close();
-            con.disconnect();
-        } catch (Exception ex) {
-            return false;
-        }*/
+        source.sendMessage("http://doodle.com/create?type=date&locale=en&location=Teamspeak&title=" + title + "&name=Janet" + timeInfo, info);
         return true;
     }
 
@@ -123,7 +112,7 @@ public class CmdCreateDoodle extends Cmd {
     }
 
     @Override
-    public String getUsage() {//TODO: Improve and add a way to show examples
+    public String getUsage() {
         return "!meeting <title> <dates> <times> <interval>";
     }
 

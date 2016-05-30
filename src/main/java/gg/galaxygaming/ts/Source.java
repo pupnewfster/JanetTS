@@ -24,7 +24,10 @@ public enum Source {
                 JanetTS.getInstance().sendTSMessage(message);
                 break;
             case Slack:
-                JanetTS.getInstance().getSlack().sendMessage(message, info.isPM(), info.getSlackUser());
+                if (info == null)
+                    JanetTS.getInstance().getSlack().sendMessage(message);
+                else
+                    JanetTS.getInstance().getSlack().sendMessage(message, info.isPM(), info.getSlackUser());
                 break;
             default:
                 break;

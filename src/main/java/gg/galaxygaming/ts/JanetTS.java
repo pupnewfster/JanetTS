@@ -11,14 +11,16 @@ import java.util.logging.Level;
 
 public class JanetTS {
     private static JanetTS INSTANCE;
-    private final List<String> devs = Arrays.asList("pupnewfster", "Chief");
-    private JanetConfig janetConfig = new JanetConfig();
-    private JanetSlack slack = new JanetSlack();
-    private JanetAI ai = new JanetAI();
-    private CommandHandler cmdHandler = new CommandHandler();
     private static TS3Query query;
     private static TS3Api API;
     private static int clientId;
+
+    private final List<String> devs = Arrays.asList("pupnewfster", "Chief");
+    private CommandHandler cmdHandler = new CommandHandler();
+    private JanetConfig janetConfig = new JanetConfig();
+    private JanetRandom random = new JanetRandom();
+    private JanetSlack slack = new JanetSlack();
+    private JanetAI ai = new JanetAI();
 
     public JanetTS() {
         this.janetConfig.setConfig();
@@ -94,5 +96,13 @@ public class JanetTS {
 
     public JanetSlack getSlack() {
         return this.slack;
+    }
+
+    public JanetAI getAI() {
+        return this.ai;
+    }
+
+    public JanetRandom getRandom() {
+        return this.random;
     }
 }

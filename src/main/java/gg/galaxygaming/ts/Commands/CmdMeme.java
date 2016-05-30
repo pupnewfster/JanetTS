@@ -1,26 +1,24 @@
 package gg.galaxygaming.ts.Commands;
 
 import gg.galaxygaming.ts.Info;
-import gg.galaxygaming.ts.JanetRandom;
+import gg.galaxygaming.ts.JanetTS;
 import gg.galaxygaming.ts.Source;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class CmdMeme extends Cmd {
-    private JanetRandom r = new JanetRandom();
-
     @Override
     public boolean performCommand(String[] args, Source source, Info info) {
         if (args.length == 0) {
-            source.sendMessage("Error: You must input the max random number.");
+            source.sendMessage("Error: You must input the max random number.", info);
             return true;
         }
         if (!form.isLegal(args[0])) {
-            source.sendMessage("Error: You must input a valid number.");
+            source.sendMessage("Error: You must input a valid number.", info);
             return true;
         }
-        source.sendMessage(Integer.toString(r.memeRandom(Integer.parseInt(args[0]))));
+        source.sendMessage(Integer.toString(JanetTS.getInstance().getRandom().memeRandom(Integer.parseInt(args[0]))), info);
         return true;
     }
 

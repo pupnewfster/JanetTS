@@ -19,7 +19,7 @@ public class JanetConfig {
                 input = new FileInputStream("config.properties");
                 prop.load(input);
                 input.close();
-            } catch (Exception e) {}
+            } catch (Exception ignored) { }
             output = new FileOutputStream("config.properties");
             if (prop.getProperty("tsUsername") == null)
                 prop.put("tsUsername", "serveradmin");

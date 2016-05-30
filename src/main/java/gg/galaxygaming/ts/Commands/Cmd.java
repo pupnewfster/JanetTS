@@ -13,7 +13,7 @@ public abstract class Cmd {
 
     public abstract String helpDoc();
 
-    public abstract String getUsage();
+    public abstract String getUsage();//TODO: Improve and add a way to show examples
 
     public abstract String getName();
 

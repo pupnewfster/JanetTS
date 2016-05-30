@@ -6,7 +6,7 @@ import java.util.UUID;
 public class JanetWarn {
     private static HashMap<UUID, Integer> warnCount = new HashMap<>();
     private String JanetName = "Janet: ";
-    JanetConfig config = JanetTS.getInstance().getConfig();
+    private JanetConfig config = JanetTS.getInstance().getConfig();
     private int warns = config.getInt("Warns");
 
     public void removePlayer(UUID uuid) {

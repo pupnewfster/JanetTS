@@ -4,8 +4,6 @@ import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.*;
 
 public class Listeners extends TS3EventAdapter {
-    private JanetAI ai = new JanetAI();
-
     @Override
     public void onTextMessage(TextMessageEvent e) {
         // Only react to channel messages not sent by the query itself
@@ -23,18 +21,19 @@ public class Listeners extends TS3EventAdapter {
             }*/
             String message = e.getMessage(), name = e.getInvokerName();
             boolean valid = false;
+            Info info = new Info(name);
             if (message.startsWith("!"))
-                valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, new Info(name), Source.TeamSpeak);
+                valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, info, Source.TeamSpeak);
             if (!valid) {
                 JanetTS.getInstance().getSlack().sendMessage(name + ": " + message);
-                this.ai.parseMessage(name, message, Source.TeamSpeak, false, null);
+                JanetTS.getInstance().getAI().parseMessage(info, message, Source.TeamSpeak);
             }
         }
     }
 
     @Override
     public void onServerEdit(ServerEditedEvent e) {
-        System.out.println("Server edited by " + e.getInvokerName());
+        JanetTS.getInstance().getSlack().sendMessage("Server edited by " + e.getInvokerName());
     }
 
     @Override
@@ -45,11 +44,13 @@ public class Listeners extends TS3EventAdapter {
     @Override
     public void onClientLeave(ClientLeaveEvent e) {
         System.out.println("Client has left " + e.getInvokerName());
+        JanetTS.getInstance().getSlack().sendMessage("Client has left " + e.getInvokerName());
     }
 
     @Override
     public void onClientJoin(ClientJoinEvent e) {
         System.out.println("Client has joined " + e.getInvokerName());
+        JanetTS.getInstance().getSlack().sendMessage("Client has joined " + e.getInvokerName());
     }
 
     @Override
