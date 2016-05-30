@@ -1,0 +1,2 @@
+# JanetTS
+GalaxyGaming TS Bot
