@@ -41,7 +41,7 @@ public class CommandHandler {
                 List<Source> sources = cmd.supportedSources();
                 if (sources != null && !sources.contains(source)) {
                     String validSources = "";
-                    for (int i = 1; i < sources.size(); i++) {
+                    for (int i = 0; i < sources.size(); i++) {
                         if (!validSources.equals("")) {
                             validSources += (i == 2 && i == sources.size()) ? " " : ", ";
                             if (i == sources.size())
