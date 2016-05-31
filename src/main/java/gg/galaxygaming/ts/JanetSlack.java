@@ -1,5 +1,8 @@
 package gg.galaxygaming.ts;
 
+import com.neovisionaries.ws.client.WebSocket;
+import com.neovisionaries.ws.client.WebSocketAdapter;
+import com.neovisionaries.ws.client.WebSocketFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -19,6 +22,7 @@ public class JanetSlack {
     private boolean justLoaded = true, isConnected = false, stopping = false;
     private String token, channel, channelID, latestInChanel;
     private Timer historyReader;
+    private WebSocket ws;
     private URL hookURL;
 
     public void init(JanetConfig config) {
@@ -45,6 +49,8 @@ public class JanetSlack {
         sendMessage("Disconnected.");
         sendPost("https://slack.com/api/users.setPresence?token=" + this.token + "&presence=away&pretty=1");
         this.isConnected = false;
+        if (this.ws != null)
+            this.ws.disconnect();
     }
 
     public void sendMessage(String message, boolean isPM, SlackUser u) {
@@ -202,6 +208,9 @@ public class JanetSlack {
             JSONObject json = (JSONObject) jsonParser.parse(response.toString());
             //Get a more recent timestamp than zero so first history pass is more efficient
             this.latestInChanel = (String) json.get("latest_event_ts");
+            String webSocketUrl = (String) json.get("url");
+            if (webSocketUrl != null)
+                openWebSocket(webSocketUrl);
             //Map users
             JSONArray users = (JSONArray) json.get("users");
             for (int i = users.size() - 1; i >= 0; i--) {
@@ -218,6 +227,17 @@ public class JanetSlack {
         sendPost("https://slack.com/api/users.setActive?token=" + this.token + "&pretty=1");
         sendMessage("Connected.");
         this.isConnected = true;
+    }
+
+    private void openWebSocket(String url) {
+        try {
+            this.ws = new WebSocketFactory().createSocket(url).addListener(new WebSocketAdapter() {
+                @Override
+                public void onTextMessage(WebSocket websocket, String message) throws Exception {
+                    System.out.println(message);
+                }
+            }).connect();
+        } catch (Exception ignored) { }
     }
 
     private void setUserChannels() {
