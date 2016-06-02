@@ -3,6 +3,7 @@ package gg.galaxygaming.ts.Commands;
 import gg.galaxygaming.ts.Info;
 import gg.galaxygaming.ts.JanetTS;
 import gg.galaxygaming.ts.Source;
+import gg.galaxygaming.ts.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,7 @@ public class CmdHelp extends Cmd {
     @Override
     public boolean performCommand(String[] args, Source source, Info info) {
         int page = 0;
-        if (args.length > 0 && !form.isLegal(args[0])) {
+        if (args.length > 0 && !Utils.isLegal(args[0])) {
             source.sendMessage("Error: You must enter a valid help page.", info);
             return true;
         }

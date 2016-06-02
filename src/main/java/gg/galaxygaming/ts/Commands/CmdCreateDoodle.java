@@ -2,6 +2,7 @@ package gg.galaxygaming.ts.Commands;
 
 import gg.galaxygaming.ts.Info;
 import gg.galaxygaming.ts.Source;
+import gg.galaxygaming.ts.Utils;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -20,7 +21,7 @@ public class CmdCreateDoodle extends Cmd {
         double interval = 1;
         if (args.length > 3) {
             String intr = args[3];
-            if (form.isLegal(intr)) {
+            if (Utils.isLegal(intr)) {
                 interval = Double.parseDouble(intr);
                 if (interval <= 0)
                     interval = 1;
@@ -67,7 +68,7 @@ public class CmdCreateDoodle extends Cmd {
                 day = inf[1];
                 year = inf[2];
             }
-            if (form.isLegal(month) && form.isLegal(day) && form.isLegal(year)) {
+            if (Utils.isLegal(month) && Utils.isLegal(day) && Utils.isLegal(year)) {
                 int mn = Integer.parseInt(month), dn = Integer.parseInt(day);
                 if (mn < 1 || mn > 12 || dn < 1 || dn > 31) //Would be better to check to make sure the month has 31 days...
                     continue;
@@ -90,12 +91,12 @@ public class CmdCreateDoodle extends Cmd {
         if (pieces.length == 0 || pieces.length > 2)
             return -1;
         String hour = pieces[0];
-        if (!form.isLegal(hour))
+        if (!Utils.isLegal(hour))
             return -1;
         double h = Double.parseDouble(hour);
         if (pieces.length == 2) {
             String minutes = pieces[1];
-            if (!form.isLegal(minutes))
+            if (!Utils.isLegal(minutes))
                 return -1;
             h += Integer.parseInt(minutes)/60.0;
         }

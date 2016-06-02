@@ -3,6 +3,7 @@ package gg.galaxygaming.ts.Commands;
 import gg.galaxygaming.ts.Info;
 import gg.galaxygaming.ts.JanetTS;
 import gg.galaxygaming.ts.Source;
+import gg.galaxygaming.ts.Utils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +15,7 @@ public class CmdMeme extends Cmd {
             source.sendMessage("Error: You must input the max random number.", info);
             return true;
         }
-        if (!form.isLegal(args[0])) {
+        if (!Utils.isLegal(args[0])) {
             source.sendMessage("Error: You must input a valid number.", info);
             return true;
         }

@@ -4,6 +4,7 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
+import gg.galaxygaming.ts.PermissionManager.PermissionManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +21,7 @@ public class JanetTS {
     private JanetConfig janetConfig = new JanetConfig();
     private JanetRandom random = new JanetRandom();
     private JanetSlack slack = new JanetSlack();
+    private PermissionManager pm = new PermissionManager();
     private JanetAI ai = new JanetAI();
 
     public JanetTS() {
@@ -35,25 +37,30 @@ public class JanetTS {
         JanetConfig jConfig = getInstance().getConfig();
         final TS3Config config = new TS3Config();
         config.setHost(jConfig.getString("tsHost"));
-        config.setDebugLevel(Level.ALL);
+        config.setDebugLevel(Level.WARNING);
 
         query = new TS3Query(config);
         query.connect();
 
-        API = query.getApi();
+        API = query.getApi(); //TODO: Try to use the async api in places
         getApi().login(jConfig.getString("tsUsername"), jConfig.getString("tsPassword"));
         getApi().selectVirtualServerById(1);
         getApi().setNickname("Janet");
-        getApi().sendChannelMessage("Connected.");
 
         // Get our own client ID by running the "whoami" command
         clientId = getApi().whoAmI().getId();
+
+
+        getInstance().getPermissionManager().init();
+
 
         // Listen to chat in the channel the query is currently in
         // As we never changed the channel, this will be the default channel of the server
         getApi().registerEvent(TS3EventType.TEXT_CHANNEL, 0);
 
         getApi().addTS3Listeners(new Listeners());
+
+        getApi().sendChannelMessage("Connected.");
     }
 
     public static JanetTS getInstance() {
@@ -104,5 +111,9 @@ public class JanetTS {
 
     public JanetRandom getRandom() {
         return this.random;
+    }
+
+    public PermissionManager getPermissionManager() {
+        return this.pm;
     }
 }

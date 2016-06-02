@@ -2,8 +2,8 @@ package gg.galaxygaming.ts;
 
 import java.text.DecimalFormat;
 
-public class Formatter {
-    public boolean isLegal(String input) {
+public class Utils {
+    public static boolean isLegal(String input) {
         try {
             Double.parseDouble(input);
             return true;
@@ -12,19 +12,19 @@ public class Formatter {
         return false;
     }
 
-    public String roundTwoDecimals(double d) {
+    public static String roundTwoDecimals(double d) {
         return new DecimalFormat("0.00").format(d);
     }
 
-    public String addCommas(String s) {
+    public static String addCommas(String s) {
         return new DecimalFormat("#,##0.00").format(Double.parseDouble(s));
     }
 
-    public String addCommas(int i) {
+    public static String addCommas(int i) {
         return new DecimalFormat("#,###").format(i);
     }
 
-    public String capFirst(String matName) {
+    public static String capFirst(String matName) {
         if (matName == null)
             return "";
         String name = "";
@@ -35,7 +35,7 @@ public class Formatter {
         return name.trim();
     }
 
-    private String upercaseFirst(String word) {
+    private static String upercaseFirst(String word) {
         if (word == null)
             return "";
         String firstCapitalized = "";
@@ -46,7 +46,11 @@ public class Formatter {
         return firstCapitalized;
     }
 
-    public String ownerShip(String name) {
+    public static String ownerShip(String name) {
         return (name.endsWith("s") || name.endsWith("S")) ? name + "'" : name + "'s";
+    }
+
+    public static long getLong(int x, int z) {
+        return (long) x << 32 | z & 0xFFFFFFFFL;
     }
 }

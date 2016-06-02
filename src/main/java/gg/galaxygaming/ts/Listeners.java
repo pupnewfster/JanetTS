@@ -2,23 +2,16 @@ package gg.galaxygaming.ts;
 
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.*;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Permission;
 
 public class Listeners extends TS3EventAdapter {
     @Override
     public void onTextMessage(TextMessageEvent e) {
         // Only react to channel messages not sent by the query itself
         if (e.getTargetMode() == TextMessageTargetMode.CHANNEL && e.getInvokerId() != JanetTS.getClientId()) {
-            /*ClientInfo client = JanetTS.getApi().getClientByUId(e.getInvokerUniqueId());
-            //needs to check if the client has some permission or other and then let it use the exit command
-            int[] groups = client.getServerGroups();
-            ArrayList<Permission> permissions = new ArrayList<>();
-            for (int i = 0; i < groups.length; i++) {
-                permissions.addAll(JanetTS.getApi().getServerGroupPermissions(groups[i]));
-            }
-            for (int i = 0; i < permissions.size(); i++) {
-                Permission perm = permissions.get(i);
-                System.out.println(perm.getName() + " " + perm.getValue() + " " + perm.isNegated() + " " + perm.isSkipped());
-            }*/
+            //String permission = "i_channel_max_depth";
+            //Permission perm = JanetTS.getInstance().getPermissionManager().getPermission(e.getInvokerUniqueId(), permission);
+            //System.out.println(perm.getName() + " " + perm.getValue() + " " + perm.isNegated() + " " + perm.isSkipped());
             String message = e.getMessage(), name = e.getInvokerName();
             boolean valid = false;
             Info info = new Info(name);
