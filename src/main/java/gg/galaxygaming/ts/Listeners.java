@@ -2,7 +2,6 @@ package gg.galaxygaming.ts;
 
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.*;
-import com.github.theholywaffle.teamspeak3.api.wrapper.Permission;
 
 public class Listeners extends TS3EventAdapter {
     @Override
@@ -36,14 +35,15 @@ public class Listeners extends TS3EventAdapter {
 
     @Override
     public void onClientLeave(ClientLeaveEvent e) {
-        System.out.println("Client has left " + e.getInvokerName());
-        JanetTS.getInstance().getSlack().sendMessage("Client has left " + e.getInvokerName());
+        System.out.println(e.getClientId() + " disconnected.");
+        JanetTS.getInstance().getSlack().sendMessage(e.getClientId() + " disconnected.");
     }
 
     @Override
     public void onClientJoin(ClientJoinEvent e) {
-        System.out.println("Client has joined " + e.getInvokerName());
-        JanetTS.getInstance().getSlack().sendMessage("Client has joined " + e.getInvokerName());
+        System.out.println(e.getClientNickname() + " connected.");
+        JanetTS.getInstance().getSlack().sendMessage(e.getClientNickname() + " connected.");
+        //JanetTS.getInstance().getUserManager().addUser(e.getInvokerUniqueId());
     }
 
     @Override

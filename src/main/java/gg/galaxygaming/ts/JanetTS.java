@@ -3,8 +3,8 @@ package gg.galaxygaming.ts;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
-import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
 import gg.galaxygaming.ts.PermissionManager.PermissionManager;
+import gg.galaxygaming.ts.PermissionManager.UserManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +22,7 @@ public class JanetTS {
     private JanetRandom random = new JanetRandom();
     private JanetSlack slack = new JanetSlack();
     private PermissionManager pm = new PermissionManager();
+    private UserManager um = new UserManager();
     private JanetAI ai = new JanetAI();
 
     public JanetTS() {
@@ -56,7 +57,8 @@ public class JanetTS {
 
         // Listen to chat in the channel the query is currently in
         // As we never changed the channel, this will be the default channel of the server
-        getApi().registerEvent(TS3EventType.TEXT_CHANNEL, 0);
+        //getApi().registerEvent(TS3EventType.TEXT_CHANNEL, 0);
+        getApi().registerAllEvents();
 
         getApi().addTS3Listeners(new Listeners());
 
@@ -115,5 +117,9 @@ public class JanetTS {
 
     public PermissionManager getPermissionManager() {
         return this.pm;
+    }
+
+    public UserManager getUserManager() {
+        return this.um;
     }
 }
