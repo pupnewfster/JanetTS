@@ -80,7 +80,7 @@ public class CmdCreateDoodle extends Cmd {
                 day = "0" + day;
             timeInfo += "&" + year + month + day + "=" + timeOpts;
         }
-        source.sendMessage("http://doodle.com/create?type=date&locale=en&location=Teamspeak&title=" + title + "&name=Janet" + timeInfo, info);
+        source.sendMessage("http://doodle.com/create?type=date&locale=en&location=Teamspeak&description=Auto%20generated%20Janet%20meeting&title=" + title + "&name=Janet" + timeInfo, info);
         return true;
     }
 
@@ -100,7 +100,7 @@ public class CmdCreateDoodle extends Cmd {
                 return -1;
             h += Integer.parseInt(minutes)/60.0;
         }
-        if (conversion.equals("PM"))
+        if (conversion.equalsIgnoreCase("PM"))
             h += 12;
         if (hour.equals("12") || hour.equals("24"))
             h -= 12;

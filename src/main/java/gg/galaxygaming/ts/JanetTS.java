@@ -3,6 +3,7 @@ package gg.galaxygaming.ts;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Wrapper;
 import gg.galaxygaming.ts.PermissionManager.PermissionManager;
 import gg.galaxygaming.ts.PermissionManager.UserManager;
 
@@ -52,7 +53,7 @@ public class JanetTS {
         clientId = getApi().whoAmI().getId();
 
 
-        getInstance().getPermissionManager().init();
+        //getInstance().getPermissionManager().init();
 
 
         // Listen to chat in the channel the query is currently in
@@ -63,6 +64,8 @@ public class JanetTS {
         getApi().addTS3Listeners(new Listeners());
 
         getApi().sendChannelMessage("Connected.");
+
+        gg.galaxygaming.ts.Wrapper.Wrapper.main(null);
     }
 
     public static JanetTS getInstance() {
@@ -85,6 +88,7 @@ public class JanetTS {
         this.slack.disconnect();
         sendTSMessage("Disconnected.");
         query.exit();
+        gg.galaxygaming.ts.Wrapper.Wrapper.exit();
     }
 
     public JanetConfig getConfig() {
