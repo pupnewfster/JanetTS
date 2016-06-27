@@ -217,15 +217,15 @@ public class JanetAI {//TODO: Upgrade
         this.tiltMessages[7] = "I am tilted.";
 
         //Cleverbot init
-        factory = new ChatterBotFactory();
+        this.factory = new ChatterBotFactory();
         try {
-            bot = factory.create(ChatterBotType.CLEVERBOT);
+            this.bot = this.factory.create(ChatterBotType.CLEVERBOT);
         }
         catch (Exception e) {
             System.err.println(e.getMessage());
             System.out.println("CleverBot could not be created");
         }
-        cleverBot = bot.createSession();
+        this.cleverBot = this.bot.createSession();
 
     }
 
@@ -277,7 +277,7 @@ public class JanetAI {//TODO: Upgrade
     public void cleverBotParseMessage(Info info, String message, Source s) {
         String response = "Clever Bot could not think";
         try {
-            response = cleverBot.think(message);
+            response = this.cleverBot.think(message);
         }
         catch(Exception e) {
             System.err.println(e.getMessage());
