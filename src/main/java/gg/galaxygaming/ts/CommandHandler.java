@@ -34,6 +34,7 @@ public class CommandHandler {
         else if (message.startsWith("/"))
             message = message.replaceFirst("/", "");
         String command = message.split(" ")[0];
+        if(command == "gtfo") { command = "exit"; }
         String arguments = message.replaceFirst(command, "").trim();
         String[] args = arguments.equals("") ? new String[0] : arguments.split(" ");
         for (Cmd cmd : this.cmds) {
