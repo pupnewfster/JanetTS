@@ -156,6 +156,9 @@ public class JanetSlack {
             JSONArray users = (JSONArray) json.get("members");
             for (Object user1 : users) {
                 JSONObject user = (JSONObject) user1;
+                boolean deleted = (boolean) user.get("deleted");
+                if (deleted)
+                    continue;
                 boolean is_bot = (boolean) user.get("is_bot");
                 if (is_bot) //If it is a bot it may be a webhook in which case it does not have all the information for a SlackUser object to be made
                     continue;
@@ -188,7 +191,7 @@ public class JanetSlack {
                                 else if (channel.startsWith("D")) //Direct Message
                                     sendSlackChat(info, text, true);
                                 else if (channel.startsWith("G")) { //Group
-
+                                    sendSlackChat(info, text, false);
                                 }
                             }
                         }
