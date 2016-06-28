@@ -3,7 +3,6 @@ package gg.galaxygaming.ts;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
-import com.github.theholywaffle.teamspeak3.api.wrapper.Wrapper;
 import gg.galaxygaming.ts.PermissionManager.PermissionManager;
 import gg.galaxygaming.ts.PermissionManager.UserManager;
 
