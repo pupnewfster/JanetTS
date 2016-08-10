@@ -159,9 +159,9 @@ public class JanetSlack {
                 boolean deleted = (boolean) user.get("deleted");
                 if (deleted)
                     continue;
-                boolean is_bot = (boolean) user.get("is_bot");
-                if (is_bot) //If it is a bot it may be a webhook in which case it does not have all the information for a SlackUser object to be made
-                    continue;
+                //boolean is_bot = (boolean) user.get("is_bot");
+                //if (is_bot) //If it is a bot it may be a webhook in which case it does not have all the information for a SlackUser object to be made
+                    //continue;
                 String id = (String) user.get("id");
                 if (!this.userMap.containsKey(id))
                     this.userMap.put(id, new SlackUser(user));
@@ -179,20 +179,22 @@ public class JanetSlack {
                     JSONObject json = (JSONObject) jsonParser.parse(message);
                     if (json.containsKey("type")) {
                         String type = (String) json.get("type");
-                        if (type.equals("message") && !json.containsKey("bot_id")) {
-                            SlackUser info = getUserInfo((String) json.get("user"));
-                            if (!info.getName().contains("janet")) {
-                                String text = (String) json.get("text");
-                                while (text.contains("<") && text.contains(">"))
-                                    text = text.split("<@")[0] + "@" + getUserInfo(text.split("<@")[1].split(">:")[0]).getName() + ":" + text.split("<@")[1].split(">:")[1];
-                                String channel = (String) json.get("channel");
-                                if (channel.startsWith("C")) //Channel
-                                    sendSlackChat(info, text, false);
-                                else if (channel.startsWith("D")) //Direct Message
-                                    sendSlackChat(info, text, true);
-                                else if (channel.startsWith("G")) { //Group
-                                    sendSlackChat(info, text, false);
-                                }
+                        if (type.equals("message")) {
+                            SlackUser info;
+                            if (json.containsKey("bot_id"))
+                                info = getUserInfo("U1C75FEAC");
+                            else
+                                info = getUserInfo((String) json.get("user"));
+                            String text = (String) json.get("text");
+                            while (text.contains("<") && text.contains(">"))
+                                text = text.split("<@")[0] + "@" + getUserInfo(text.split("<@")[1].split(">:")[0]).getName() + ":" + text.split("<@")[1].split(">:")[1];
+                            String channel = (String) json.get("channel");
+                            if (channel.startsWith("C")) //Channel
+                                sendSlackChat(info, text, false);
+                            else if (channel.startsWith("D")) //Direct Message
+                                sendSlackChat(info, text, true);
+                            else if (channel.startsWith("G")) { //Group
+                                sendSlackChat(info, text, false);
                             }
                         }
                     }
@@ -231,6 +233,8 @@ public class JanetSlack {
             sendMessage("Error: You are restricted or ultra restricted.", isPM, info);
             return;
         }
+        if (info.isBot())
+            return;
         boolean valid = false;
         Info uInfo = new Info(info, isPM);
         if (message.startsWith("!"))
@@ -243,12 +247,16 @@ public class JanetSlack {
 
     public class SlackUser {
         private String id, name, channel;
+        private boolean isBot = false;
         private int rank = 0;
 
         public SlackUser(JSONObject json) {
             this.id = (String) json.get("id");
             this.name = (String) json.get("name");
-            if ((boolean) json.get("is_primary_owner"))
+            if ((boolean) json.get("is_bot")) {
+                this.isBot = true;
+                this.rank = 2;
+            } else if ((boolean) json.get("is_primary_owner"))
                 this.rank = 3;
             else if ((boolean) json.get("is_owner"))
                 this.rank = 2;
@@ -311,6 +319,10 @@ public class JanetSlack {
             else if (isUltraRestricted())
                 return "Ultra Restricted";
             return "Error";
+        }
+
+        public boolean isBot() {
+            return this.isBot;
         }
 
         public String getChannel() {

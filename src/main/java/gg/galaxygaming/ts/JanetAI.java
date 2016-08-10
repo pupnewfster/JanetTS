@@ -5,12 +5,11 @@ import com.google.code.chatterbotapi.ChatterBotFactory;
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.google.code.chatterbotapi.ChatterBotType;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 
 public class JanetAI {//TODO: Upgrade
-    private ArrayList<String> heyMessages = new ArrayList<>();
-    private String[] janetNamed = new String[16], feelingMessages = new String[20], stalkerMessages = new String[4], drunkMessages = new String[10], tiltMessages = new String[8];
+    //private ArrayList<String> heyMessages = new ArrayList<>();
+    //private String[] janetNamed = new String[16], feelingMessages = new String[20], stalkerMessages = new String[4], drunkMessages = new String[10], tiltMessages = new String[8];
     private ChatterBotFactory factory;
     private ChatterBot bot;
     private ChatterBotSession cleverBot;
@@ -90,7 +89,7 @@ public class JanetAI {//TODO: Upgrade
     }
 
     public void initiate() {
-        String[] foods = new String[6];
+        /*String[] foods = new String[6];
         String[] drinks = new String[8];
         String[] start = new String[7];
         String[] end = new String[6];
@@ -214,7 +213,7 @@ public class JanetAI {//TODO: Upgrade
         this.tiltMessages[4] = "Stop tilting me.";
         this.tiltMessages[5] = "You are tilting me.";
         this.tiltMessages[6] = "I'm tilted.";
-        this.tiltMessages[7] = "I am tilted.";
+        this.tiltMessages[7] = "I am tilted.";*/
 
         //Cleverbot init
         this.factory = new ChatterBotFactory();

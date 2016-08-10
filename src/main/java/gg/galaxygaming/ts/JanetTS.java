@@ -5,6 +5,7 @@ import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import gg.galaxygaming.ts.PermissionManager.PermissionManager;
 import gg.galaxygaming.ts.PermissionManager.UserManager;
+import gg.galaxygaming.ts.QueryManager.QueryManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +13,9 @@ import java.util.logging.Level;
 
 public class JanetTS {
     private static JanetTS INSTANCE;
+    private static TS3Config config;
     private static TS3Query query;
+    private static Listeners listeners;
     private static TS3Api API;
     private static int clientId;
 
@@ -22,6 +25,7 @@ public class JanetTS {
     private JanetRandom random = new JanetRandom();
     private JanetSlack slack = new JanetSlack();
     private PermissionManager pm = new PermissionManager();
+    private QueryManager qm = new QueryManager();
     private UserManager um = new UserManager();
     private JanetAI ai = new JanetAI();
 
@@ -36,7 +40,7 @@ public class JanetTS {
     public static void main(String[] args) {
         INSTANCE = new JanetTS();
         JanetConfig jConfig = getInstance().getConfig();
-        final TS3Config config = new TS3Config();
+        config = new TS3Config();
         config.setHost(jConfig.getString("tsHost"));
         config.setDebugLevel(Level.WARNING);
 
@@ -51,20 +55,20 @@ public class JanetTS {
         // Get our own client ID by running the "whoami" command
         clientId = getApi().whoAmI().getId();
 
-
         //getInstance().getPermissionManager().init();
 
 
         // Listen to chat in the channel the query is currently in
         // As we never changed the channel, this will be the default channel of the server
         //getApi().registerEvent(TS3EventType.TEXT_CHANNEL, 0);
+        //TS3EventType.
         getApi().registerAllEvents();
+        listeners = new Listeners();
+        getApi().addTS3Listeners(listeners);
 
-        getApi().addTS3Listeners(new Listeners());
+        //getApi().sendChannelMessage(27, "Connected.");
 
-        getApi().sendChannelMessage("Connected.");
-
-        gg.galaxygaming.ts.Wrapper.Wrapper.main(null);
+        getInstance().getQM().addAllChannels();
     }
 
     public static JanetTS getInstance() {
@@ -79,15 +83,22 @@ public class JanetTS {
         return API;
     }
 
+    public static TS3Config getTSConfig() {
+        return config;
+    }
+
     public void sendTSMessage(String message) {
         getApi().sendChannelMessage(message);
     }
 
     public void disconnect() {
+        this.qm.removeAllChannels();
         this.slack.disconnect();
         sendTSMessage("Disconnected.");
+        API.removeTS3Listeners(listeners);
+        API.unregisterAllEvents();
+        API.logout();
         query.exit();
-        gg.galaxygaming.ts.Wrapper.Wrapper.exit();
     }
 
     public JanetConfig getConfig() {
@@ -112,6 +123,10 @@ public class JanetTS {
 
     public JanetAI getAI() {
         return this.ai;
+    }
+
+    public QueryManager getQM() {
+        return this.qm;
     }
 
     public JanetRandom getRandom() {
