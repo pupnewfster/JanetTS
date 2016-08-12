@@ -6,7 +6,9 @@ import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventAdapter;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
+import gg.galaxygaming.ts.Info;
 import gg.galaxygaming.ts.JanetTS;
+import gg.galaxygaming.ts.Source;
 
 public class Query {
     private TextListeners listeners;
@@ -63,6 +65,14 @@ public class Query {
                 String m = cName + " " + name + ": " + message;
                 System.out.println(m);
                 JanetTS.getInstance().getLog().log(m);
+                boolean valid = false;
+                Info info = new Info(name, getChannelID());
+                if (message.startsWith("!"))
+                    valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, info, Source.TeamSpeak);
+                if (!valid) {
+                    //JanetTS.getInstance().getSlack().sendMessage(name + ": " + message);
+                    //JanetTS.getInstance().getAI().parseMessage(info, message, Source.TeamSpeak);
+                }
             }
         }
     }

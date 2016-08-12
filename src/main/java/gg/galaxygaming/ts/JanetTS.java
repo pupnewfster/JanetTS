@@ -45,6 +45,7 @@ public class JanetTS {
         config = new TS3Config();
         config.setHost(jConfig.getString("tsHost"));
         config.setDebugLevel(Level.WARNING);
+        config.setFloodRate(TS3Query.FloodRate.UNLIMITED);
 
         query = new TS3Query(config);
         query.connect();
@@ -86,8 +87,17 @@ public class JanetTS {
         return config;
     }
 
-    public void sendTSMessage(String message) { //Needs to update somehow to send to proper channel that we want
+    public void sendTSMessage(String message) {
         getApi().sendChannelMessage(message);
+    }
+
+    public void sendTSMessage(String message, int channelID) {
+        if (this.qm.hasQuery(channelID))
+            this.qm.getQuery(channelID).getApi().sendChannelMessage(message);
+        else {
+            getApi().sendChannelMessage(channelID, message);
+            getApi().moveQuery(getDefaultChannelID());
+        }
     }
 
     public void disconnect() {

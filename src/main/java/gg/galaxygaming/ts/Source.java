@@ -21,7 +21,7 @@ public enum Source {
     public void sendMessage(String message, Info info) {
         switch (this) {
             case TeamSpeak:
-                JanetTS.getInstance().sendTSMessage(message);
+                JanetTS.getInstance().sendTSMessage(message, info.getChannelID());
                 break;
             case Slack:
                 if (info == null)

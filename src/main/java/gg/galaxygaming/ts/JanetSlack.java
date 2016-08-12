@@ -174,7 +174,7 @@ public class JanetSlack {
             this.ws = new WebSocketFactory().createSocket(url).addListener(new WebSocketAdapter() {
                 @Override
                 public void onTextMessage(WebSocket websocket, String message) throws Exception {
-                    System.out.println(message);
+                    //System.out.println(message);
                     JSONParser jsonParser = new JSONParser();
                     JSONObject json = (JSONObject) jsonParser.parse(message);
                     if (json.containsKey("type")) {
@@ -239,8 +239,12 @@ public class JanetSlack {
         Info uInfo = new Info(info, isPM);
         if (message.startsWith("!"))
             valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, uInfo, Source.Slack);
-        if (!valid && !isPM)
-            JanetTS.getInstance().sendTSMessage("From Slack - " + info.getName() + ": " + message);
+        if (!valid && !isPM) {
+            String m = "From Slack - " + info.getName() + ": " + message;
+            JanetTS.getInstance().sendTSMessage(m);
+            JanetTS.getInstance().getLog().log(m);
+            System.out.println(m);
+        }
         //if (!valid)
             //JanetTS.getInstance().getAI().parseMessage(uInfo, message, Source.Slack);
     }

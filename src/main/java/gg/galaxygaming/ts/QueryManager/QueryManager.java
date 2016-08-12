@@ -1,6 +1,8 @@
 package gg.galaxygaming.ts.QueryManager;
 
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import gg.galaxygaming.ts.JanetTS;
 
 import java.util.HashMap;
@@ -14,18 +16,14 @@ public class QueryManager {
     }
 
     public void addAllChannels() {
-        String rcn = JanetTS.getInstance().getConfig().getString("roomCreatorName");
-        for (Channel c : JanetTS.getApi().getChannels()) {
-            if (c.getTotalClients() > 0 && !c.getName().equalsIgnoreCase(rcn))
-                channelAdded(c.getId());
-        }
+        for (Client c : JanetTS.getApi().getClients())
+            if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
+                channelAdded(c.getChannelId());
     }
 
     public void removeAllChannels() {
-        for (int c : this.queries.keySet()) {
-            Query query = this.queries.get(c);
-            query.disconnect();
-        }
+        for (int c : this.queries.keySet())
+            this.queries.get(c).disconnect();
         this.queries.clear();
     }
 
@@ -35,32 +33,26 @@ public class QueryManager {
 
     public void channelAdded(int i) {
         if (!hasQuery(i)) {
-            if (JanetTS.getApi().getChannelInfo(i).getName().equalsIgnoreCase(JanetTS.getInstance().getConfig().getString("roomCreatorName")))
+            ChannelInfo cinfo = JanetTS.getApi().getChannelInfo(i);
+            if (cinfo.getName().equalsIgnoreCase(JanetTS.getInstance().getConfig().getString("roomCreatorName")) || (!cinfo.isPermanent() && !cinfo.isSemiPermanent()))
                 return;
             this.lastQuery = i;
             this.queries.put(i, new Query(i));
         }
+        channelsDeleted();
     }
 
-    public void channelDeleted(int i) {
-        if (!hasQuery(i))
-            return;
-        for (Channel c : JanetTS.getApi().getChannels())
-            if (c.getId() == i) {
-                if (c.getTotalClients() == 2) {
-                    Query query = this.queries.get(i);
-                    query.disconnect();
-                    this.queries.remove(i);
-                    if (this.lastQuery == i)
-                        this.lastQuery = 0;
+    public void channelsDeleted() {
+        for (int c : this.queries.keySet())
+            for (Channel ch : JanetTS.getApi().getChannels())
+                if (ch.getId() == c) {
+                    if (ch.getTotalClients() == 1) {
+                        this.queries.get(c).disconnect();
+                        this.queries.remove(c);
+                        if (this.lastQuery == c)
+                            this.lastQuery = 0;
+                    }
+                    break;
                 }
-                return;
-            }
-        //Remove if it somehow is not in list of channels if one gets deleted this may be the case
-        Query query = this.queries.get(i);
-        query.disconnect();
-        this.queries.remove(i);
-        if (this.lastQuery == i)
-            this.lastQuery = 0;
     }
 }
