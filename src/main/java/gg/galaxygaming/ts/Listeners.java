@@ -1,9 +1,15 @@
 package gg.galaxygaming.ts;
 
+import com.github.theholywaffle.teamspeak3.TS3Api;
+import com.github.theholywaffle.teamspeak3.api.ChannelProperty;
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.*;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import gg.galaxygaming.ts.QueryManager.QueryManager;
+
+import java.util.HashMap;
 
 public class Listeners extends TS3EventAdapter {
     @Override
@@ -15,7 +21,10 @@ public class Listeners extends TS3EventAdapter {
             //ClientInfo client = JanetTS.getApi().getClientByUId(e.getInvokerUniqueId());
             //ChannelInfo channel = JanetTS.getApi().getChannelInfo(client.getChannelId());
             //String cName = channel.getName();
-            System.out.println("Server " + name + ": " + message);
+            String m = "Server " + name + ": " + message;
+            JanetTS.getInstance().getSlack().sendMessage(m);
+            JanetTS.getInstance().getLog().log(m);
+            System.out.println(m);
             /*if (e.getTargetMode() == TextMessageTargetMode.CHANNEL) {
                 //String permission = "i_channel_max_depth";
                 //Permission perm = JanetTS.getInstance().getPermissionManager().getPermission(e.getInvokerUniqueId(), permission);
@@ -34,25 +43,33 @@ public class Listeners extends TS3EventAdapter {
 
     @Override
     public void onServerEdit(ServerEditedEvent e) {
-        JanetTS.getInstance().getSlack().sendMessage("Server edited by " + e.getInvokerName());
+        String m = "Server edited by " + e.getInvokerName();
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
     }
 
     @Override
     public void onClientMoved(ClientMovedEvent e) {
-        ClientInfo info = JanetTS.getApi().getClientInfo(e.getClientId());
-        System.out.println("Client has been moved " + info.getNickname());
+        TS3Api api = JanetTS.getApi();
         QueryManager qm = JanetTS.getInstance().getQM();
-        if (!qm.hasQuery(e.getTargetChannelId()))
+        ClientInfo info = api.getClientInfo(e.getClientId());
+        String m = "Client has been moved " + info.getNickname();
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
+        if (!qm.hasQuery(e.getTargetChannelId()) && !handleRoomCreation(e.getTargetChannelId(), e.getClientId()))
             qm.channelAdded(e.getTargetChannelId());
-        if (!info.isServerQueryClient())
-            qm.channelDeleted(info.getChannelId());
+        qm.channelDeleted(info.getChannelId()); //If it doesn't have a query leave it be.
     }
 
     @Override
     public void onClientLeave(ClientLeaveEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getClientId());
-        System.out.println(info.getNickname() + " disconnected.");
-        JanetTS.getInstance().getSlack().sendMessage(info.getNickname() + " disconnected.");
+        String m = info.getNickname() + " disconnected.";
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
         if (!info.isServerQueryClient())
             JanetTS.getInstance().getQM().channelDeleted(info.getChannelId()); //Delete old one if it is empty
     }
@@ -60,49 +77,106 @@ public class Listeners extends TS3EventAdapter {
     @Override
     public void onClientJoin(ClientJoinEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getClientId());
-        System.out.println(info.getNickname() + " connected.");
-        JanetTS.getInstance().getSlack().sendMessage(info.getNickname() + " connected.");
+        String m = info.getNickname() + " connected.";
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
         //JanetTS.getInstance().getUserManager().addUser(e.getInvokerUniqueId());
         QueryManager qm = JanetTS.getInstance().getQM();
-        if (!info.isServerQueryClient() && !qm.hasQuery(info.getChannelId()))
+        int cid = info.getChannelId();
+        if (!info.isServerQueryClient() && !qm.hasQuery(cid) && !handleRoomCreation(cid, e.getClientId()))
             qm.channelAdded(info.getChannelId());
+    }
+
+    private boolean handleRoomCreation(int cid, int clientID) {
+        TS3Api api = JanetTS.getApi();
+        ChannelInfo cinfo = api.getChannelInfo(cid);
+        if (!cinfo.getName().equalsIgnoreCase(JanetTS.getInstance().getConfig().getString("roomCreatorName")))
+            return false;
+        int pid = cinfo.getParentChannelId();
+        ChannelInfo pinfo = api.getChannelInfo(pid);
+        if (pinfo.getMaxClients() > 0)
+            return false;
+        final HashMap<ChannelProperty, String> properties = new HashMap<>();
+        properties.put(ChannelProperty.CPID, Integer.toString(pid));
+        properties.put(ChannelProperty.CHANNEL_DESCRIPTION, "Janet generated " + pinfo.getName() + " channel");
+        String name, snum;
+        int lastNum = 0, num, bcid = cid;
+        for (Channel c : api.getChannels())
+            if (c.getParentChannelId() == pid) {
+                name = c.getName();
+                if (!name.startsWith("Room "))
+                    continue;
+                snum = name.replaceFirst("Room ", "");
+                if (Utils.isLegal(snum)) {
+                    num = Integer.parseInt(snum);
+                    if (num - lastNum != 1)
+                        break;
+                    lastNum = num;
+                }
+                bcid = c.getId();
+            }
+        properties.put(ChannelProperty.CHANNEL_ORDER, Integer.toString(bcid));
+        int ncid = api.createChannel("Room " + (lastNum + 1), properties);
+        JanetTS.getInstance().getQM().channelAdded(ncid);
+        api.moveClient(clientID, ncid);
+        api.moveQuery(JanetTS.getDefaultChannelID());
+        return true;
     }
 
     @Override
     public void onChannelEdit(ChannelEditedEvent e) {
-        System.out.println("Channel edited by " + e.getInvokerName());
+        String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " edited by " + e.getInvokerName();
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
     }
 
     @Override
     public void onChannelDescriptionChanged(ChannelDescriptionEditedEvent e) {
-        System.out.println("Channel description edited by " + e.getInvokerName());
+        String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " description edited by " + e.getInvokerName();
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
     }
 
     @Override
     public void onChannelCreate(ChannelCreateEvent e) {
-        System.out.println("Channel created by " + e.getInvokerName());
-        //if (JanetTS.getApi().getChannelInfo(e.getChannelId()).getMaxClients() > 0)
-            //JanetTS.getInstance().getQM().channelAdded(e.getChannelId());
+        String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " created by " + e.getInvokerName();
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
     }
 
     @Override
     public void onChannelDeleted(ChannelDeletedEvent e) {
-        System.out.println("Channel deleted by " + e.getInvokerName());
-        JanetTS.getInstance().getQM().channelDeleted(e.getChannelId());
+        String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " deleted by " + e.getInvokerName();
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
     }
 
     @Override
     public void onChannelMoved(ChannelMovedEvent e) {
-        System.out.println("Channel moved by " + e.getInvokerName());
+        String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " moved by " + e.getInvokerName();
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
     }
 
     @Override
     public void onChannelPasswordChanged(ChannelPasswordChangedEvent e) {
-        System.out.println("Channel password changed by " + e.getInvokerName());
+        String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " password changed by " + e.getInvokerName();
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
     }
 
     @Override
     public void onPrivilegeKeyUsed(PrivilegeKeyUsedEvent e) {
-        System.out.println("Privilege key used by " + e.getInvokerName());
+        String m = "Privilege key used by " + e.getInvokerName();
+        JanetTS.getInstance().getSlack().sendMessage(m);
+        JanetTS.getInstance().getLog().log(m);
+        System.out.println(m);
     }
 }

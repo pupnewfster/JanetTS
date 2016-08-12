@@ -3,6 +3,7 @@ package gg.galaxygaming.ts;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
 import gg.galaxygaming.ts.PermissionManager.PermissionManager;
 import gg.galaxygaming.ts.PermissionManager.UserManager;
 import gg.galaxygaming.ts.QueryManager.QueryManager;
@@ -17,7 +18,7 @@ public class JanetTS {
     private static TS3Query query;
     private static Listeners listeners;
     private static TS3Api API;
-    private static int clientId;
+    private static int clientId, dcID;
 
     private final List<String> devs = Arrays.asList("pupnewfster", "Chief");
     private CommandHandler cmdHandler = new CommandHandler();
@@ -28,6 +29,7 @@ public class JanetTS {
     private QueryManager qm = new QueryManager();
     private UserManager um = new UserManager();
     private JanetAI ai = new JanetAI();
+    private JanetLog log = new JanetLog();
 
     public JanetTS() {
         this.janetConfig.setConfig();
@@ -52,22 +54,15 @@ public class JanetTS {
         getApi().selectVirtualServerById(1);
         getApi().setNickname("Janet");
 
-        // Get our own client ID by running the "whoami" command
-        clientId = getApi().whoAmI().getId();
+        ServerQueryInfo info = getApi().whoAmI();
+        clientId = info.getId();
+        dcID = info.getChannelId();
 
         //getInstance().getPermissionManager().init();
 
-
-        // Listen to chat in the channel the query is currently in
-        // As we never changed the channel, this will be the default channel of the server
-        //getApi().registerEvent(TS3EventType.TEXT_CHANNEL, 0);
-        //TS3EventType.
         getApi().registerAllEvents();
         listeners = new Listeners();
         getApi().addTS3Listeners(listeners);
-
-        //getApi().sendChannelMessage(27, "Connected.");
-
         getInstance().getQM().addAllChannels();
     }
 
@@ -79,6 +74,10 @@ public class JanetTS {
         return clientId;
     }
 
+    public static int getDefaultChannelID() {
+        return dcID;
+    }
+
     public static TS3Api getApi() {
         return API;
     }
@@ -87,7 +86,7 @@ public class JanetTS {
         return config;
     }
 
-    public void sendTSMessage(String message) {
+    public void sendTSMessage(String message) { //Needs to update somehow to send to proper channel that we want
         getApi().sendChannelMessage(message);
     }
 
@@ -95,9 +94,9 @@ public class JanetTS {
         this.qm.removeAllChannels();
         this.slack.disconnect();
         sendTSMessage("Disconnected.");
-        API.removeTS3Listeners(listeners);
-        API.unregisterAllEvents();
-        API.logout();
+        getApi().removeTS3Listeners(listeners);
+        getApi().unregisterAllEvents();
+        getApi().logout();
         query.exit();
     }
 
@@ -139,5 +138,9 @@ public class JanetTS {
 
     public UserManager getUserManager() {
         return this.um;
+    }
+
+    public JanetLog getLog(){
+        return this.log;
     }
 }

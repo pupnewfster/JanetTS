@@ -241,8 +241,8 @@ public class JanetSlack {
             valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, uInfo, Source.Slack);
         if (!valid && !isPM)
             JanetTS.getInstance().sendTSMessage("From Slack - " + info.getName() + ": " + message);
-        if (!valid)
-            JanetTS.getInstance().getAI().parseMessage(uInfo, message, Source.Slack);
+        //if (!valid)
+            //JanetTS.getInstance().getAI().parseMessage(uInfo, message, Source.Slack);
     }
 
     public class SlackUser {

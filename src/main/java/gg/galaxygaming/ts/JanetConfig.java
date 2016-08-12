@@ -37,6 +37,8 @@ public class JanetConfig {
                 prop.put("WebHook", "webHook");
             if (prop.getProperty("Warns") == null)
                 prop.put("Warns", "3");
+            if (prop.getProperty("roomCreatorName") == null)
+                prop.put("roomCreatorName", "Join here to create a new room");
             // save properties to project root folder
             prop.store(output, null);
         } catch (Exception e) {
@@ -68,6 +70,7 @@ public class JanetConfig {
             this.config.put("ChannelID", prop.getProperty("ChannelID", "channel"));
             this.config.put("WebHook", prop.getProperty("WebHook", "webHook"));
             this.config.put("Warns", prop.getProperty("Warns"));
+            this.config.put("roomCreatorName", prop.getProperty("roomCreatorName"));
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {

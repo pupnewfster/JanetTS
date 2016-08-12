@@ -14,8 +14,9 @@ public class QueryManager {
     }
 
     public void addAllChannels() {
+        String rcn = JanetTS.getInstance().getConfig().getString("roomCreatorName");
         for (Channel c : JanetTS.getApi().getChannels()) {
-            if (c.getTotalClients() > 0)
+            if (c.getTotalClients() > 0 && !c.getName().equalsIgnoreCase(rcn))
                 channelAdded(c.getId());
         }
     }
@@ -34,10 +35,13 @@ public class QueryManager {
 
     public void channelAdded(int i) {
         if (!hasQuery(i)) {
+            if (JanetTS.getApi().getChannelInfo(i).getName().equalsIgnoreCase(JanetTS.getInstance().getConfig().getString("roomCreatorName")))
+                return;
             this.lastQuery = i;
             this.queries.put(i, new Query(i));
         }
     }
+
     public void channelDeleted(int i) {
         if (!hasQuery(i))
             return;
