@@ -18,7 +18,7 @@ public class QueryManager {
     public void addAllChannels() {
         for (Client c : JanetTS.getApi().getClients())
             if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
-                channelAdded(c.getChannelId());
+                channelAdded(c.getChannelId(), false);
     }
 
     public void removeAllChannels() {
@@ -32,6 +32,10 @@ public class QueryManager {
     }
 
     public void channelAdded(int i) {
+        channelAdded(i, true);
+    }
+
+    private void channelAdded(int i, boolean checkDeleted) {
         if (!hasQuery(i)) {
             ChannelInfo cinfo = JanetTS.getApi().getChannelInfo(i);
             if (cinfo.getName().equalsIgnoreCase(JanetTS.getInstance().getConfig().getString("roomCreatorName")) || (!cinfo.isPermanent() && !cinfo.isSemiPermanent()))
@@ -39,13 +43,17 @@ public class QueryManager {
             this.lastQuery = i;
             this.queries.put(i, new Query(i));
         }
-        channelsDeleted();
+        if (checkDeleted)
+            channelsDeleted();
     }
 
     public void channelsDeleted() {
-        for (int c : this.queries.keySet())
+        boolean cfound;
+        for (int c : this.queries.keySet()) {
+            cfound = false;
             for (Channel ch : JanetTS.getApi().getChannels())
                 if (ch.getId() == c) {
+                    cfound = true;
                     if (ch.getTotalClients() == 1) {
                         this.queries.get(c).disconnect();
                         this.queries.remove(c);
@@ -54,5 +62,12 @@ public class QueryManager {
                     }
                     break;
                 }
+            if (!cfound) {
+                this.queries.get(c).disconnect();
+                this.queries.remove(c);
+                if (this.lastQuery == c)
+                    this.lastQuery = 0;
+            }
+        }
     }
 }

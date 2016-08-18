@@ -2,7 +2,8 @@ package gg.galaxygaming.ts;
 
 public enum Source {
     TeamSpeak("TeamSpeak"),
-    Slack("Slack");
+    Slack("Slack"),
+    Console("Console");
 
     String name;
 
@@ -28,6 +29,9 @@ public enum Source {
                     JanetTS.getInstance().getSlack().sendMessage(message);
                 else
                     JanetTS.getInstance().getSlack().sendMessage(message, info.isPM(), info.getSlackUser());
+                break;
+            case Console:
+                System.out.println(message);
                 break;
             default:
                 break;

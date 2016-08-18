@@ -182,7 +182,7 @@ public class JanetSlack {
                         if (type.equals("message")) {
                             SlackUser info;
                             if (json.containsKey("bot_id"))
-                                info = getUserInfo("U1C75FEAC");
+                                info = getUserInfo("U1C75FEAC"); //TODO: Figure out what this should be replaced with
                             else
                                 info = getUserInfo((String) json.get("user"));
                             String text = (String) json.get("text");
@@ -241,7 +241,7 @@ public class JanetSlack {
             valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, uInfo, Source.Slack);
         if (!valid && !isPM) {
             String m = "From Slack - " + info.getName() + ": " + message;
-            JanetTS.getInstance().sendTSMessage(m);
+            //JanetTS.getInstance().sendTSMessage(m); //Commented out until we decide where it should be sent channelwise
             JanetTS.getInstance().getLog().log(m);
             System.out.println(m);
         }

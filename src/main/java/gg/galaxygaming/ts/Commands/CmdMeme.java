@@ -45,6 +45,6 @@ public class CmdMeme extends Cmd {
 
     @Override
     public List<Source> supportedSources() {
-        return Arrays.asList(Source.Slack, Source.TeamSpeak);
+        return Arrays.asList(Source.Slack, Source.TeamSpeak, Source.Console);
     }
 }

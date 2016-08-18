@@ -4,8 +4,7 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
-import gg.galaxygaming.ts.PermissionManager.PermissionManager;
-import gg.galaxygaming.ts.PermissionManager.UserManager;
+import gg.galaxygaming.ts.PermissionManager.RankManager;
 import gg.galaxygaming.ts.QueryManager.QueryManager;
 
 import java.util.Arrays;
@@ -25,9 +24,10 @@ public class JanetTS {
     private JanetConfig janetConfig = new JanetConfig();
     private JanetRandom random = new JanetRandom();
     private JanetSlack slack = new JanetSlack();
-    private PermissionManager pm = new PermissionManager();
+    //private PermissionManager pm = new PermissionManager();
     private QueryManager qm = new QueryManager();
-    private UserManager um = new UserManager();
+    private RankManager rm = new RankManager();
+    //private UserManager um = new UserManager();
     private JanetAI ai = new JanetAI();
     private JanetLog log = new JanetLog();
 
@@ -37,6 +37,7 @@ public class JanetTS {
         this.slack.init(this.janetConfig);
         this.ai.initiate();
         this.cmdHandler.setup();
+        this.rm.connect();
     }
 
     public static void main(String[] args) {
@@ -65,6 +66,17 @@ public class JanetTS {
         listeners = new Listeners();
         getApi().addTS3Listeners(listeners);
         getInstance().getQM().addAllChannels();
+
+        /*Console console = System.console();
+        int i = 0;
+        String line;
+        CommandHandler ch = getInstance().getCommandHandler();
+        while (i < 1000) { //Needs to change to be over 1000 just needs to make sure first that it doesnt cause issues
+            i++;
+            line = console.readLine();
+            if (line.startsWith("!"))
+                ch.handleCommand(line, null, Source.Console);
+        }*/
     }
 
     public static JanetTS getInstance() {
@@ -103,6 +115,7 @@ public class JanetTS {
     public void disconnect() {
         this.qm.removeAllChannels();
         this.slack.disconnect();
+        this.rm.disconnect();
         sendTSMessage("Disconnected.");
         getApi().removeTS3Listeners(listeners);
         getApi().unregisterAllEvents();
@@ -112,6 +125,10 @@ public class JanetTS {
 
     public JanetConfig getConfig() {
         return this.janetConfig;
+    }
+
+    public RankManager getRM() {
+        return this.rm;
     }
 
     public boolean isDev(String name) {
@@ -142,13 +159,13 @@ public class JanetTS {
         return this.random;
     }
 
-    public PermissionManager getPermissionManager() {
+    /*public PermissionManager getPermissionManager() {
         return this.pm;
-    }
+    }*/
 
-    public UserManager getUserManager() {
+    /*public UserManager getUserManager() {
         return this.um;
-    }
+    }*/
 
     public JanetLog getLog(){
         return this.log;

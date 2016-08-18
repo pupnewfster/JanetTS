@@ -48,8 +48,7 @@ public class Listeners extends TS3EventAdapter {
 
     @Override
     public void onClientLeave(ClientLeaveEvent e) {
-        ClientInfo info = JanetTS.getApi().getClientInfo(e.getClientId());
-        String m = info.getNickname() + " disconnected.";
+        String m = JanetTS.getApi().getClientByUId(e.getInvokerUniqueId()).getNickname() + " disconnected.";
         JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
@@ -69,6 +68,7 @@ public class Listeners extends TS3EventAdapter {
         int cid = info.getChannelId();
         if (!info.isServerQueryClient() && !qm.hasQuery(cid) && !handleRoomCreation(cid, e.getClientId()))
             qm.channelAdded(info.getChannelId());
+        JanetTS.getInstance().getRM().check(e.getUniqueClientIdentifier());
     }
 
     private boolean handleRoomCreation(int cid, int clientID) {

@@ -29,6 +29,8 @@ public class CommandHandler {
 
 
     public boolean handleCommand(String message, Info info, Source source) {
+        if (info == null && !source.equals(Source.Console))
+            return false;
         if (message.startsWith("!"))
             message = message.replaceFirst("!", "");
         else if (message.startsWith("/"))
@@ -50,6 +52,9 @@ public class CommandHandler {
                         validSources += sources.get(i);
                     }
                     source.sendMessage("Error: This command must be used through " + validSources, info);
+                    return true;
+                } else if (source.equals(Source.TeamSpeak)) {
+                    source.sendMessage("Error: TeamSpeak commands are currently disabled.", info);
                     return true;
                 }
                 return cmd.performCommand(args, source, info);
