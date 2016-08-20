@@ -3,7 +3,7 @@ package gg.galaxygaming.ts;
 import java.text.DecimalFormat;
 
 public class Utils {
-    public static boolean isLegal(String input) {
+    public static boolean isLegal(String input) { //Should add a second one for Integer.parseInt for purposes of not having rare errors occur
         try {
             Double.parseDouble(input);
             return true;

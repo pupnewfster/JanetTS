@@ -1,23 +1,31 @@
 package gg.galaxygaming.ts;
 
 public class Info {
-    private JanetSlack.SlackUser slackUser;
-    private String sender;
-    private boolean isPM;
-    private int channelID;
+    private JanetSlack.SlackUser slackUser = null;
+    private String sender = null;
+    private boolean isPM = false;
+    private Source source = null;
+    private int channelID = -1;
 
-    public Info(String sender, int channelID) {
-        this.sender = sender;
-        this.isPM = false;
-        this.channelID = channelID;
-        this.slackUser = null;
+    public Info(Source source) {
+        this.source = source; //Should double check this is Source.Console
     }
 
-    public Info(JanetSlack.SlackUser slackUser, boolean isPM) { //Should the source also be part of info
+    public Info(Source source, String sender, int channelID) {
+        this.source = source;
+        this.sender = sender;
+        this.channelID = channelID;
+    }
+
+    public Info(Source source, JanetSlack.SlackUser slackUser, boolean isPM) {
+        this.source = source;
         this.sender = slackUser.getName();
         this.isPM = isPM;
         this.slackUser = slackUser;
-        this.channelID = -1;
+    }
+
+    public Source getSource() {
+        return this.source;
     }
 
     public String getSender() {
@@ -34,5 +42,22 @@ public class Info {
 
     public int getChannelID() {
         return this.channelID;
+    }
+
+    public void sendMessage(String message) {
+        switch (this.source) {
+            case TeamSpeak:
+                JanetTS.getInstance().sendTSMessage(message, this.channelID);
+                break;
+            case Slack:
+                //JanetTS.getInstance().getSlack().sendMessage(message); //Old method if info was null but can it ever be now
+                JanetTS.getInstance().getSlack().sendMessage(message, this.isPM, this.slackUser);
+                break;
+            case Console:
+                System.out.println(message);
+                break;
+            default:
+                break;
+        }
     }
 }

@@ -6,7 +6,7 @@ import gg.galaxygaming.ts.Source;
 import java.util.List;
 
 public abstract class Cmd {
-    public abstract boolean performCommand(String[] args, Source source, Info info);
+    public abstract boolean performCommand(String[] args, Info info);
 
     public abstract String helpDoc();
 

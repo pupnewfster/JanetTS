@@ -8,8 +8,8 @@ import java.util.List;
 
 public class CmdRank extends Cmd {
     @Override
-    public boolean performCommand(String[] args, Source source, Info info) {
-        source.sendMessage(info.getSlackUser().getRankName(), info);
+    public boolean performCommand(String[] args, Info info) {
+        info.sendMessage(info.getSlackUser().getRankName());
         return true;
     }
 

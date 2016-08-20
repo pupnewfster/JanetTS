@@ -17,13 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 
 public class RankManager {
-    private Connection conn;
     private String user, pass, url;
     private int vid, sSup, gSup, umrID, caID;
 
     public void check(String tsuid) {
         try {
-            Statement stmt = this.conn.createStatement();
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(this.url, this.user, this.pass);
+            Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM ts_id_to_site_id WHERE ts_id = " + tsuid);
             ArrayList<Integer> tsRanks = new ArrayList<>();
             int room = -1;
@@ -53,17 +54,20 @@ public class RankManager {
             Client client = api.getClientByUId(tsuid);
             if (!tsRanks.isEmpty() || siteID == null) {
                 int dbid = client.getDatabaseId();
-                if (room == -1 && (tsRanks.contains(this.sSup) || tsRanks.contains(this.gSup))) {//It needs to be created
-                    String name = client.getNickname();
-                    String cname = name + (name.endsWith("s") ? "'" : "'s") + " Room";
-                    final HashMap<ChannelProperty, String> properties = new HashMap<>();
-                    properties.put(ChannelProperty.CHANNEL_FLAG_PERMANENT, "1");
-                    properties.put(ChannelProperty.CPID, Integer.toString(this.umrID));
-                    properties.put(ChannelProperty.CHANNEL_TOPIC, cname);
-                    int ncid = api.createChannel(cname, properties);
-                    api.setClientChannelGroup(this.caID, ncid, dbid);
-                    api.moveQuery(JanetTS.getDefaultChannelID());
-                    stmt.executeQuery("UPDATE core_members SET room_id = " + ncid + " WHERE member_id = " + siteID);
+                if (tsRanks.contains(this.sSup) || tsRanks.contains(this.gSup)) {
+                    if (room == -1) { //It needs to be created
+                        String name = client.getNickname();
+                        String cname = name + (name.endsWith("s") ? "'" : "'s") + " Room";
+                        final HashMap<ChannelProperty, String> properties = new HashMap<>();
+                        properties.put(ChannelProperty.CHANNEL_FLAG_PERMANENT, "1");
+                        properties.put(ChannelProperty.CPID, Integer.toString(this.umrID));
+                        properties.put(ChannelProperty.CHANNEL_TOPIC, cname);
+                        int ncid = api.createChannel(cname, properties);
+                        api.setClientChannelGroup(this.caID, ncid, dbid);
+                        api.moveQuery(JanetTS.getDefaultChannelID());
+                        stmt.executeQuery("UPDATE core_members SET room_id = " + ncid + " WHERE member_id = " + siteID);
+                    } else //Add them to admin for their room
+                        api.setClientChannelGroup(this.caID, room, dbid); //Should it first check to see if they have it already
                 } else if (room != -1) { //Room needs to be removed because they are not a silver or gold supporter
                     api.deleteChannel(room, true);
                     stmt.executeQuery("UPDATE core_members SET room_id = -1 WHERE member_id = " + siteID);
@@ -79,10 +83,11 @@ public class RankManager {
             } else //Send them a message to verify
                 api.sendPrivateMessage(client.getId(), "Click here to verify your account: ");
             stmt.close();
+            conn.close();
         } catch (Exception ignored) { }
     }
 
-    public void connect() {
+    public void init() {
         JanetConfig config = JanetTS.getInstance().getConfig();
         this.vid = config.getInt("verifiedID");
         this.sSup = config.getInt("silverID");
@@ -92,18 +97,8 @@ public class RankManager {
         this.url = "jdbc:mysql://" + config.getString("dbHost") + "/" + config.getString("dbName");
         this.user = config.getString("dbUser");
         this.pass = config.getString("dbPassword");
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            this.conn = DriverManager.getConnection(this.url, this.user, this.pass);
-        } catch (Exception ignored) { }
         for (Client c : JanetTS.getApi().getClients())
             if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
                 check(c.getUniqueIdentifier());
-    }
-
-    public void disconnect() {
-        try {
-            this.conn.close();
-        } catch (Exception ignored) { }
     }
 }

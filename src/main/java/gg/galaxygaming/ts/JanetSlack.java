@@ -18,16 +18,15 @@ import java.util.HashMap;
 public class JanetSlack {
     private HashMap<String, SlackUser> userMap = new HashMap<>();
     private boolean isConnected = false;
-    private String token, channel, channelID;
+    private String token, janet_id;
     private WebSocket ws;
     private URL hookURL;
 
     public void init(JanetConfig config) {
-        this.token = config.contains("SlackToken") ? config.getString("SlackToken") : "token";
-        this.channel = config.contains("SlackChannel") ? config.getString("SlackChannel") : "channel";
-        this.channelID = config.contains("ChannelID") ? config.getString("ChannelID") : "channelID";
-        String hook = config.contains("WebHook") ? config.getString("WebHook") : "webHook";
-        if (this.token.equals("token") || this.channel.equals("channel") || this.channelID.equals("channelID") || hook.equals("webHook"))
+        this.token = config.getString("SlackToken");
+        this.janet_id = config.getString("janetSID");
+        String hook = config.getString("WebHook");
+        if (this.token.equals("token") || hook.equals("webHook") || this.janet_id.equals("janetSlackID"))
             return;
         try {
             this.hookURL = new URL(hook);
@@ -55,11 +54,7 @@ public class JanetSlack {
     }
 
     public void sendMessage(String message) {
-        sendViaHook(message);
         //sendPost("https://slack.com/api/chat.postMessage?token=" + this.token + "&channel=%23" + this.channel + "&text=" + message.replaceAll(" ", "%20") + "&as_user=true&pretty=1");
-    }
-
-    private void sendViaHook(String message) {
         if (message.endsWith("\n"))
             message = message.substring(0, message.length() - 1);
         JSONObject json = new JSONObject();
@@ -83,8 +78,8 @@ public class JanetSlack {
         if (this.userMap.containsKey(id))
             return this.userMap.get(id);
         //Almost never should get past this point as it maps the users when it connects unless a new user gets invited
-        try {
-            URL url = new URL("https://slack.com/api/users.info?token=" + this.token + "&user=" + id + "&pretty=1");
+        try { //How does this handle bots
+            URL url = new URL("https://slack.com/api/users.info?token=" + this.token + "&user=" + id);
             HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -95,10 +90,15 @@ public class JanetSlack {
             in.close();
             JSONParser jsonParser = new JSONParser();
             this.userMap.put(id, new SlackUser((JSONObject) jsonParser.parse(response.toString())));
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) { } //Should this return null
         return this.userMap.get(id);
     }
 
+    /**
+     * @deprecated
+     * Still works just has not been used for a long time and is unneeded
+     */
+    @Deprecated
     private void sendPost(String url) {
         try {
             URL obj = new URL(url);
@@ -114,7 +114,7 @@ public class JanetSlack {
         if (this.isConnected)
             return;
         try {
-            URL url = new URL("https://slack.com/api/rtm.start?token=" + this.token + "&simple_latest=true&no_unreads=true&pretty=1");
+            URL url = new URL("https://slack.com/api/rtm.start?token=" + this.token + "&simple_latest=true&no_unreads=true");
             HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -133,13 +133,13 @@ public class JanetSlack {
         } catch (Exception ignored) { }
         setUsers();
         setUserChannels();
-        sendMessage("Connected.");
         this.isConnected = true;
+        sendMessage("Connected.");
     }
 
     private void setUsers() {
         try {
-            URL url = new URL("https://slack.com/api/users.list?token=" + this.token + "&presence=true&pretty=1");
+            URL url = new URL("https://slack.com/api/users.list?token=" + this.token + "&presence=true");
             HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -182,7 +182,7 @@ public class JanetSlack {
                         if (type.equals("message")) {
                             SlackUser info;
                             if (json.containsKey("bot_id"))
-                                info = getUserInfo("U1C75FEAC"); //TODO: Figure out what this should be replaced with
+                                info = getUserInfo(janet_id); //TODO: Figure out if there is a way to get the user id of a bot instead of just using janet's
                             else
                                 info = getUserInfo((String) json.get("user"));
                             String text = (String) json.get("text");
@@ -205,7 +205,7 @@ public class JanetSlack {
 
     private void setUserChannels() {
         try {
-            URL url = new URL("https://slack.com/api/im.list?token=" + this.token + "&pretty=1");
+            URL url = new URL("https://slack.com/api/im.list?token=" + this.token);
             HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -233,12 +233,18 @@ public class JanetSlack {
             sendMessage("Error: You are restricted or ultra restricted.", isPM, info);
             return;
         }
-        if (info.isBot())
+        if (info.isBot()) {
+            if (info.getID().equals(this.janet_id) && message.split(" ").length == 1)
+                try {
+                    if (JanetTS.getApi().getClientByUId(message) != null)
+                        JanetTS.getInstance().getRM().check(message);
+                } catch (Exception ignored) { }
             return;
+        }
         boolean valid = false;
-        Info uInfo = new Info(info, isPM);
+        Info uInfo = new Info(Source.Slack, info, isPM);
         if (message.startsWith("!"))
-            valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, uInfo, Source.Slack);
+            valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, uInfo);
         if (!valid && !isPM) {
             String m = "From Slack - " + info.getName() + ": " + message;
             //JanetTS.getInstance().sendTSMessage(m); //Commented out until we decide where it should be sent channelwise

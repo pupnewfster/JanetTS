@@ -14,8 +14,8 @@ public class JanetAI {//TODO: Upgrade
     private ChatterBot bot;
     private ChatterBotSession cleverBot;
     
-    public void parseMessage(Info info, String message, Source s) {
-        cleverBotParseMessage(info,message,s);
+    public void parseMessage(Info info, String message) {
+        cleverBotParseMessage(info, message);
         /*String name = info.getSender();
         String result = null;
         if (message.toLowerCase().contains("what time is it") || message.toLowerCase().contains("what is the time"))
@@ -82,10 +82,10 @@ public class JanetAI {//TODO: Upgrade
             sendMessage(result, s, info);*/
     }
 
-    public void sendMessage(String message, Source s, Info info) {
-        if (s.equals(Source.Slack) && !info.isPM())
+    public void sendMessage(String message, Info info) {
+        if (info.getSource().equals(Source.Slack) && !info.isPM())
             JanetTS.getInstance().sendTSMessage("To Slack - " + message);
-        s.sendMessage(message, info);
+        info.sendMessage(message);
     }
 
     public void initiate() {
@@ -273,14 +273,13 @@ public class JanetAI {//TODO: Upgrade
         return dayOfWeek(c.get(Calendar.DAY_OF_WEEK)) + " " + Integer.toString(c.get(Calendar.MONTH) + 1) + "/" + Integer.toString(c.get(Calendar.DATE)) + "/" +
                 Integer.toString(c.get(Calendar.YEAR));
     }
-    public void cleverBotParseMessage(Info info, String message, Source s) {
+    public void cleverBotParseMessage(Info info, String message) {
         String response = "Clever Bot could not think";
         try {
             response = this.cleverBot.think(message);
-        }
-        catch(Exception e) {
+        } catch(Exception e) {
             System.err.println(e.getMessage());
         }
-        sendMessage(response, s, info);
+        sendMessage(response, info);
     }
 }

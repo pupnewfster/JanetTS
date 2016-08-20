@@ -11,10 +11,10 @@ import java.util.List;
 
 public class CmdHelp extends Cmd {
     @Override
-    public boolean performCommand(String[] args, Source source, Info info) {
+    public boolean performCommand(String[] args, Info info) {
         int page = 0;
         if (args.length > 0 && !Utils.isLegal(args[0])) {
-            source.sendMessage("Error: You must enter a valid help page.", info);
+            info.sendMessage("Error: You must enter a valid help page.");
             return true;
         }
         if (args.length > 0)
@@ -23,35 +23,31 @@ public class CmdHelp extends Cmd {
             page = 1;
         int time = 0;
         int rounder = 0;
-        ArrayList<String> helpList = JanetTS.getInstance().getCommandHandler().getHelpList(source, info);
+        ArrayList<String> helpList = JanetTS.getInstance().getCommandHandler().getHelpList(info.getSource());
         if (helpList.size() % 10 != 0)
             rounder = 1;
         int totalpages = (helpList.size() / 10) + rounder;
         if (page > totalpages) {
-            source.sendMessage("Error: Input a number from 1 to " + Integer.toString(totalpages), info);
+            info.sendMessage("Error: Input a number from 1 to " + Integer.toString(totalpages));
             return true;
         }
-
         String m = " ---- Help -- Page " + Integer.toString(page) + "/" + Integer.toString(totalpages) + " ---- \n";
         page = page - 1;
-        String msg = getLine(page, time, helpList);
-        while (msg != null) {
+        String msg;
+        while ((msg = getLine(page, time, helpList)) != null) {
             m += msg + "\n";
             time++;
-            msg = getLine(page, time, helpList);
         }
         if (page + 1 < totalpages)
             m += "Type !help " + Integer.toString(page + 2) + " to read the next page.\n";
-        source.sendMessage(m, info);
+        info.sendMessage(m);
         return true;
     }
 
 
     private String getLine(int page, int time, ArrayList<String> helpList) {
         page *= 10;
-        if (helpList.size() < time + page + 1 || time == 10)
-            return null;
-        return helpList.get(page + time);
+        return (helpList.size() < time + page + 1 || time == 10) ? null : helpList.get(page + time);
     }
 
     @Override

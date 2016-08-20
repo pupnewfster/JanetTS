@@ -10,9 +10,9 @@ import java.util.List;
 
 public class CmdCreateDoodle extends Cmd {
     @Override
-    public boolean performCommand(String[] args, Source source, Info info) {
+    public boolean performCommand(String[] args, Info info) {
         if (args.length < 3) {
-            source.sendMessage("Error: Missing arguments. The usage is " + getUsage() + ".", info);
+            info.sendMessage("Error: Missing arguments. The usage is " + getUsage() + ".");
             return true;
         }
         String title = args[0];
@@ -28,7 +28,7 @@ public class CmdCreateDoodle extends Cmd {
             }
         }
         if (times.length != 2) {
-            source.sendMessage("Error: you must have give a start and end time.", info);
+            info.sendMessage("Error: you must have give a start and end time.");
             return true;
         }
         String start = times[0], end = times[1];
@@ -39,7 +39,7 @@ public class CmdCreateDoodle extends Cmd {
         String timeOpts = "";
         double s = to24Hour(start), e = to24Hour(end);
         if (s == -1 || e == -1) {
-            source.sendMessage("Error: The given time is not valid.", info);
+            info.sendMessage("Error: The given time is not valid.");
             return true;
         }
         while (e >= s) {
@@ -80,7 +80,7 @@ public class CmdCreateDoodle extends Cmd {
                 day = "0" + day;
             timeInfo += "&" + year + month + day + "=" + timeOpts;
         }
-        source.sendMessage("http://doodle.com/create?type=date&locale=en&location=Teamspeak&description=Auto%20generated%20Janet%20meeting&title=" + title + "&name=Janet" + timeInfo, info);
+        info.sendMessage("http://doodle.com/create?type=date&locale=en&location=Teamspeak&description=Auto%20generated%20Janet%20meeting&title=" + title + "&name=Janet" + timeInfo);
         return true;
     }
 

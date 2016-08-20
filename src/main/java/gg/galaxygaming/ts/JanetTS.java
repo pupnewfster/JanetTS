@@ -19,7 +19,7 @@ public class JanetTS {
     private static TS3Api API;
     private static int clientId, dcID;
 
-    private final List<String> devs = Arrays.asList("pupnewfster", "Chief");
+    private final List<String> devs = Arrays.asList("pupnewfster", "Chief"); //Should somehow get this from a url instead for easier updating
     private CommandHandler cmdHandler = new CommandHandler();
     private JanetConfig janetConfig = new JanetConfig();
     private JanetRandom random = new JanetRandom();
@@ -37,7 +37,6 @@ public class JanetTS {
         this.slack.init(this.janetConfig);
         this.ai.initiate();
         this.cmdHandler.setup();
-        this.rm.connect();
     }
 
     public static void main(String[] args) {
@@ -59,13 +58,10 @@ public class JanetTS {
         ServerQueryInfo info = getApi().whoAmI();
         clientId = info.getId();
         dcID = info.getChannelId();
-
-        //getInstance().getPermissionManager().init();
-
         getApi().registerAllEvents();
         listeners = new Listeners();
         getApi().addTS3Listeners(listeners);
-        getInstance().getQM().addAllChannels();
+        getInstance().postQueryConnect();
 
         /*Console console = System.console();
         int i = 0;
@@ -77,6 +73,12 @@ public class JanetTS {
             if (line.startsWith("!"))
                 ch.handleCommand(line, null, Source.Console);
         }*/
+    }
+
+    private void postQueryConnect() {
+        this.qm.addAllChannels();
+        this.rm.init();
+        //this.pm.init();
     }
 
     public static JanetTS getInstance() {
@@ -115,7 +117,6 @@ public class JanetTS {
     public void disconnect() {
         this.qm.removeAllChannels();
         this.slack.disconnect();
-        this.rm.disconnect();
         sendTSMessage("Disconnected.");
         getApi().removeTS3Listeners(listeners);
         getApi().unregisterAllEvents();

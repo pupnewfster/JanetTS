@@ -60,18 +60,18 @@ public class Query {
     private class TextListeners extends TS3EventAdapter {
         @Override
         public void onTextMessage(TextMessageEvent e) {
-            if (e.getTargetMode() == TextMessageTargetMode.CHANNEL && e.getInvokerId() != getClientID()) {
+            if (e.getTargetMode() == TextMessageTargetMode.CHANNEL && e.getInvokerId() != getClientID()) { //Should always be target channel as that is the only one listened for here
                 String message = e.getMessage(), name = e.getInvokerName(), cName = getApi().getChannelInfo(getChannelID()).getName();
                 String m = cName + " " + name + ": " + message;
                 System.out.println(m);
                 JanetTS.getInstance().getLog().log(m);
                 boolean valid = false;
-                Info info = new Info(name, getChannelID());
+                Info info = new Info(Source.TeamSpeak, name, getChannelID());
                 if (message.startsWith("!"))
-                    valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, info, Source.TeamSpeak);
+                    valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, info);
                 if (!valid) {
                     //JanetTS.getInstance().getSlack().sendMessage(name + ": " + message);
-                    //JanetTS.getInstance().getAI().parseMessage(info, message, Source.TeamSpeak);
+                    //JanetTS.getInstance().getAI().parseMessage(info, message);
                 }
             }
         }

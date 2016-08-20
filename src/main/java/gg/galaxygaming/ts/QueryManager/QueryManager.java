@@ -36,6 +36,8 @@ public class QueryManager {
     }
 
     private void channelAdded(int i, boolean checkDeleted) {
+        if (checkDeleted) //No need to check the channel that is being added if it is not there yet
+            channelsDeleted();
         if (!hasQuery(i)) {
             ChannelInfo cinfo = JanetTS.getApi().getChannelInfo(i);
             if (cinfo.getName().equalsIgnoreCase(JanetTS.getInstance().getConfig().getString("roomCreatorName")) || (!cinfo.isPermanent() && !cinfo.isSemiPermanent()))
@@ -43,11 +45,9 @@ public class QueryManager {
             this.lastQuery = i;
             this.queries.put(i, new Query(i));
         }
-        if (checkDeleted)
-            channelsDeleted();
     }
 
-    public void channelsDeleted() {
+    private void channelsDeleted() {
         boolean cfound;
         for (int c : this.queries.keySet()) {
             cfound = false;

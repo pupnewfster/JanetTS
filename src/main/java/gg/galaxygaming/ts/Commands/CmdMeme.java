@@ -10,16 +10,16 @@ import java.util.List;
 
 public class CmdMeme extends Cmd {
     @Override
-    public boolean performCommand(String[] args, Source source, Info info) {
+    public boolean performCommand(String[] args, Info info) {
         if (args.length == 0) {
-            source.sendMessage("Error: You must input the max random number.", info);
+            info.sendMessage("Error: You must input the max random number.");
             return true;
         }
         if (!Utils.isLegal(args[0])) {
-            source.sendMessage("Error: You must input a valid number.", info);
+            info.sendMessage("Error: You must input a valid number.");
             return true;
         }
-        source.sendMessage(Integer.toString(JanetTS.getInstance().getRandom().memeRandom(Integer.parseInt(args[0]))), info);
+        info.sendMessage(Integer.toString(JanetTS.getInstance().getRandom().memeRandom(Integer.parseInt(args[0]))));
         return true;
     }
 

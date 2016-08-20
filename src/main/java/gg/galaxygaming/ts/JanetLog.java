@@ -9,7 +9,7 @@ public class JanetLog {
     public JanetLog() {
         File d = new File("Logs");
         if (!d.exists())
-            d.mkdir();
+            d.mkdir(); //If this is false there was an error making the directory
     }
 
     public void log(String message) {
@@ -34,8 +34,7 @@ public class JanetLog {
             bw.write(time + " " + message);
             bw.newLine();
             bw.close();
-        } catch (Exception e) {
-        }
+        } catch (Exception ignored) { }
     }
 
     private String corTime(String time) {
@@ -45,12 +44,12 @@ public class JanetLog {
     private void fileCreate(String file) {
         File f = new File(file);
         try {
-            f.createNewFile();
+            if (!f.createNewFile())
+                return;
             BufferedWriter bw = new BufferedWriter(new FileWriter(file));
             bw.write("#Log for " + file.replaceAll("Logs/", "").replaceAll(".txt", ""));
             bw.newLine();
             bw.close();
-        } catch (Exception e) {
-        }
+        } catch (Exception ignored) { }
     }
 }

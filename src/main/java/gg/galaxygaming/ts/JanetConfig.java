@@ -10,7 +10,7 @@ import java.util.Properties;
 public class JanetConfig {
     private HashMap<String,Object> config = new HashMap<>();
 
-    public void setConfig() {
+    public void setConfig() { //Maybe rename to retrieveConfig and move the loading into memory to up here as well
         Properties prop = new Properties();
         OutputStream output = null;
         InputStream input;
@@ -29,10 +29,6 @@ public class JanetConfig {
                 prop.put("tsHost", "127.0.0.1");
             if (prop.getProperty("SlackToken") == null)
                 prop.put("SlackToken", "token");
-            if (prop.getProperty("SlackChannel") == null)
-                prop.put("SlackChannel", "channel");
-            if (prop.getProperty("ChannelID") == null)
-                prop.put("ChannelID", "channel");
             if (prop.getProperty("WebHook") == null)
                 prop.put("WebHook", "webHook");
             if (prop.getProperty("Warns") == null)
@@ -57,8 +53,11 @@ public class JanetConfig {
                 prop.put("umrID", "32");
             if (prop.getProperty("caID") == null)
                 prop.put("caID", "5");
+            if (prop.getProperty("janetSID") == null)
+                prop.put("janetSID", "janetSlackID");
             // save properties to project root folder
             prop.store(output, null);
+            //Can it just load now or does it have to close then reopen to get the latest version
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -79,12 +78,15 @@ public class JanetConfig {
             input = new FileInputStream("config.properties");
             // load a properties file
             prop.load(input); //Look at a way to automate this
-            this.config.put("tsUsername", prop.getProperty("tsUsername", "serveradmin"));
+            String key;
+            for (Object k : prop.keySet()) {
+                key = (String) k;
+                this.config.put(key, prop.getProperty(key)); //Is there a good way to automatically get the default values
+            }
+            /*this.config.put("tsUsername", prop.getProperty("tsUsername", "serveradmin"));
             this.config.put("tsPassword", prop.getProperty("tsPassword", "serveradminpassword"));
             this.config.put("tsHost", prop.getProperty("tsHost", "0.0.0.0"));
             this.config.put("SlackToken", prop.getProperty("SlackToken", "token"));
-            this.config.put("SlackChannel", prop.getProperty("SlackChannel", "channel"));
-            this.config.put("ChannelID", prop.getProperty("ChannelID", "channel"));
             this.config.put("WebHook", prop.getProperty("WebHook", "webHook"));
             this.config.put("Warns", prop.getProperty("Warns", "3"));
             this.config.put("roomCreatorName", prop.getProperty("roomCreatorName", "Join here to create a new room"));
@@ -97,6 +99,7 @@ public class JanetConfig {
             this.config.put("goldID", prop.getProperty("goldID", "23"));
             this.config.put("umrID", prop.getProperty("umrID", "32"));
             this.config.put("caID", prop.getProperty("caID", "5"));
+            this.config.put("janetSID", prop.getProperty("janetSID", "janetSlackID"));*/
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
