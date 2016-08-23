@@ -10,7 +10,7 @@ import java.util.List;
 public class CmdExit extends Cmd {
 
     @Override
-    public boolean performCommand(String[] args, Source source, Info info) {
+    public boolean performCommand(String[] args, Info info) {
         JanetTS.getInstance().disconnect();
         return true;
     }
@@ -37,6 +37,6 @@ public class CmdExit extends Cmd {
 
     @Override
     public List<Source> supportedSources() {
-        return Arrays.asList(Source.Slack, Source.TeamSpeak);
+        return Arrays.asList(Source.Slack, Source.TeamSpeak, Source.Console);
     }
 }

@@ -1,14 +1,22 @@
 package gg.galaxygaming.ts;
 
-import java.util.ArrayList;
+import com.google.code.chatterbotapi.ChatterBot;
+import com.google.code.chatterbotapi.ChatterBotFactory;
+import com.google.code.chatterbotapi.ChatterBotSession;
+import com.google.code.chatterbotapi.ChatterBotType;
+
 import java.util.Calendar;
 
 public class JanetAI {//TODO: Upgrade
-    private ArrayList<String> heyMessages = new ArrayList<>();
-    private String[] janetNamed = new String[16], feelingMessages = new String[20], stalkerMessages = new String[4], drunkMessages = new String[10], tiltMessages = new String[8];
-
-    public void parseMessage(Info info, String message, Source s) {
-        String name = info.getSender();
+    //private ArrayList<String> heyMessages = new ArrayList<>();
+    //private String[] janetNamed = new String[16], feelingMessages = new String[20], stalkerMessages = new String[4], drunkMessages = new String[10], tiltMessages = new String[8];
+    private ChatterBotFactory factory;
+    private ChatterBot bot;
+    private ChatterBotSession cleverBot;
+    
+    public void parseMessage(Info info, String message) {
+        cleverBotParseMessage(info, message);
+        /*String name = info.getSender();
         String result = null;
         if (message.toLowerCase().contains("what time is it") || message.toLowerCase().contains("what is the time"))
             result = "The time is " + time();
@@ -71,17 +79,17 @@ public class JanetAI {//TODO: Upgrade
                 result = this.janetNamed[JanetTS.getInstance().getRandom().memeRandom(this.janetNamed.length)];
         }
         if (result != null)
-            sendMessage(result, s, info);
+            sendMessage(result, s, info);*/
     }
 
-    public void sendMessage(String message, Source s, Info info) {
-        if (s.equals(Source.Slack) && !info.isPM())
+    public void sendMessage(String message, Info info) {
+        if (info.getSource().equals(Source.Slack) && !info.isPM())
             JanetTS.getInstance().sendTSMessage("To Slack - " + message);
-        s.sendMessage(message, info);
+        info.sendMessage(message);
     }
 
     public void initiate() {
-        String[] foods = new String[6];
+        /*String[] foods = new String[6];
         String[] drinks = new String[8];
         String[] start = new String[7];
         String[] end = new String[6];
@@ -205,7 +213,19 @@ public class JanetAI {//TODO: Upgrade
         this.tiltMessages[4] = "Stop tilting me.";
         this.tiltMessages[5] = "You are tilting me.";
         this.tiltMessages[6] = "I'm tilted.";
-        this.tiltMessages[7] = "I am tilted.";
+        this.tiltMessages[7] = "I am tilted.";*/
+
+        //Cleverbot init
+        this.factory = new ChatterBotFactory();
+        try {
+            this.bot = this.factory.create(ChatterBotType.CLEVERBOT);
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+            System.out.println("CleverBot could not be created");
+        }
+        this.cleverBot = this.bot.createSession();
+
     }
 
     private String corTime(String time) {
@@ -252,5 +272,14 @@ public class JanetAI {//TODO: Upgrade
         Calendar c = Calendar.getInstance();
         return dayOfWeek(c.get(Calendar.DAY_OF_WEEK)) + " " + Integer.toString(c.get(Calendar.MONTH) + 1) + "/" + Integer.toString(c.get(Calendar.DATE)) + "/" +
                 Integer.toString(c.get(Calendar.YEAR));
+    }
+    public void cleverBotParseMessage(Info info, String message) {
+        String response = "Clever Bot could not think";
+        try {
+            response = this.cleverBot.think(message);
+        } catch(Exception e) {
+            System.err.println(e.getMessage());
+        }
+        sendMessage(response, info);
     }
 }

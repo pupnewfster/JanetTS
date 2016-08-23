@@ -18,24 +18,26 @@ public class CommandHandler {
             loadCommand(c.getSimpleName(), path + ".");
     }
 
-    private Cmd loadCommand(String name, String pkg) {
+    private void loadCommand(String name, String pkg) {
         try {
             Cmd command = (Cmd) Cmd.class.getClassLoader().loadClass(pkg + name).newInstance();
             if (command != null)
                 this.cmds.add(command);
         } catch (Exception ignored) { }
-        return null;
     }
 
 
-    public boolean handleCommand(String message, Info info, Source source) {
+    public boolean handleCommand(String message, Info info) {
+        if (info == null)
+            return false;
         if (message.startsWith("!"))
             message = message.replaceFirst("!", "");
-        else if (message.startsWith("/"))
-            message = message.replaceFirst("/", "");
+        //else if (message.startsWith("/")) //As of the moment we do not have any way to handle slash messages
+            //message = message.replaceFirst("/", "");
         String command = message.split(" ")[0];
         String arguments = message.replaceFirst(command, "").trim();
         String[] args = arguments.equals("") ? new String[0] : arguments.split(" ");
+        Source source = info.getSource();
         for (Cmd cmd : this.cmds) {
             if (cmd.getName().equalsIgnoreCase(command) || (cmd.getAliases() != null && cmd.getAliases().contains(command.toLowerCase()))) {
                 List<Source> sources = cmd.supportedSources();
@@ -49,16 +51,19 @@ public class CommandHandler {
                         }
                         validSources += sources.get(i);
                     }
-                    source.sendMessage("Error: This command must be used through " + validSources, info);
+                    info.sendMessage("Error: This command must be used through " + validSources);
+                    return true;
+                } else if (source.equals(Source.TeamSpeak)) {
+                    info.sendMessage("Error: TeamSpeak commands are currently disabled.");
                     return true;
                 }
-                return cmd.performCommand(args, source, info);
+                return cmd.performCommand(args, info);
             }
         }
         return false;
     }
 
-    public ArrayList<String> getHelpList(Source source, Info info) { //Info will be used for permissions as well
+    public ArrayList<String> getHelpList(Source source) { //Info will be used for permissions as well or more likely at least being able to get tsuser as well from it
         ArrayList<String> help = new ArrayList<>();
         for (Cmd cmd : this.cmds) {
             if (cmd.getName() == null || cmd.getUsage() == null || cmd.helpDoc() == null)
