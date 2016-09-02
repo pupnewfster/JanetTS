@@ -88,7 +88,7 @@ public class JanetAI {//TODO: Upgrade
         info.sendMessage(message);
     }
 
-    public void initiate() {
+    void initiate() {
         /*String[] foods = new String[6];
         String[] drinks = new String[8];
         String[] start = new String[7];
@@ -239,7 +239,7 @@ public class JanetAI {//TODO: Upgrade
             case Calendar.TUESDAY:
                 return "Tuesday";
             case Calendar.WEDNESDAY:
-                return "Wensday";
+                return "Wednesday";
             case Calendar.THURSDAY:
                 return "Thursday";
             case Calendar.FRIDAY:
@@ -273,6 +273,7 @@ public class JanetAI {//TODO: Upgrade
         return dayOfWeek(c.get(Calendar.DAY_OF_WEEK)) + " " + Integer.toString(c.get(Calendar.MONTH) + 1) + "/" + Integer.toString(c.get(Calendar.DATE)) + "/" +
                 Integer.toString(c.get(Calendar.YEAR));
     }
+
     public void cleverBotParseMessage(Info info, String message) {
         String response = "Clever Bot could not think";
         try {

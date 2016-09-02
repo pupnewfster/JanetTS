@@ -10,7 +10,7 @@ import java.util.Properties;
 public class JanetConfig {
     private HashMap<String,Object> config = new HashMap<>();
 
-    public void setConfig() { //Maybe rename to retrieveConfig and move the loading into memory to up here as well
+    void setConfig() { //Maybe rename to retrieveConfig and move the loading into memory to up here as well
         Properties prop = new Properties();
         OutputStream output = null;
         InputStream input;
@@ -71,7 +71,7 @@ public class JanetConfig {
         }
     }
 
-    public void loadConfig() {
+    void loadConfig() {
         Properties prop = new Properties();
         InputStream input = null;
         try {

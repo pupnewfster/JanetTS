@@ -22,7 +22,7 @@ public class JanetSlack {
     private WebSocket ws;
     private URL hookURL;
 
-    public void init(JanetConfig config) {
+    void init(JanetConfig config) {
         this.token = config.getString("SlackToken");
         this.janet_id = config.getString("janetSID");
         String hook = config.getString("WebHook");
@@ -36,7 +36,7 @@ public class JanetSlack {
         connect();
     }
 
-    public void disconnect() {
+    void disconnect() {
         if (!this.isConnected)
             return;
         this.userMap.clear();
@@ -243,7 +243,7 @@ public class JanetSlack {
         }
         boolean valid = false;
         Info uInfo = new Info(Source.Slack, info, isPM);
-        if (message.startsWith("!"))
+        if (message.startsWith("!") && info.isAdmin()) //TODO check if they have permissions and not just if they are slack admin
             valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, uInfo);
         if (!valid && !isPM) {
             String m = "From Slack - " + info.getName() + ": " + message;

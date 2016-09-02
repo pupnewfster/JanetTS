@@ -31,11 +31,11 @@ public class Utils {
         matName = matName.replaceAll("_", " ").toLowerCase();
         String[] namePieces = matName.split(" ");
         for (String piece : namePieces)
-            name += upercaseFirst(piece) + " ";
+            name += uppercaseFirst(piece) + " ";
         return name.trim();
     }
 
-    private static String upercaseFirst(String word) {
+    private static String uppercaseFirst(String word) {
         if (word == null)
             return "";
         String firstCapitalized = "";

@@ -16,9 +16,10 @@ public class QueryManager {
     }
 
     public void addAllChannels() {
-        for (Client c : JanetTS.getApi().getClients())
-            if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
-                channelAdded(c.getChannelId(), false);
+        if (JanetTS.getApi().getClients() != null)
+            for (Client c : JanetTS.getApi().getClients())
+                if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
+                    channelAdded(c.getChannelId(), false);
     }
 
     public void removeAllChannels() {

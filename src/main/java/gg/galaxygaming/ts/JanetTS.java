@@ -55,13 +55,16 @@ public class JanetTS {
         getApi().selectVirtualServerById(1);
         getApi().setNickname("Janet");
 
+
         ServerQueryInfo info = getApi().whoAmI();
-        clientId = info.getId();
-        dcID = info.getChannelId();
-        getApi().registerAllEvents();
-        listeners = new Listeners();
-        getApi().addTS3Listeners(listeners);
-        getInstance().postQueryConnect();
+        if (info != null) {
+            clientId = info.getId();
+            dcID = info.getChannelId();
+            getApi().registerAllEvents();
+            listeners = new Listeners();
+            getApi().addTS3Listeners(listeners);
+            getInstance().postQueryConnect();
+        }
 
         /*Console console = System.console();
         int i = 0;

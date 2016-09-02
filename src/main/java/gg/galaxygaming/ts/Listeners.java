@@ -11,7 +11,7 @@ import gg.galaxygaming.ts.QueryManager.QueryManager;
 
 import java.util.HashMap;
 
-public class Listeners extends TS3EventAdapter {
+class Listeners extends TS3EventAdapter {
     @Override
     public void onTextMessage(TextMessageEvent e) {
         if (e.getTargetMode() == TextMessageTargetMode.SERVER && e.getInvokerId() != JanetTS.getClientId()) {
@@ -66,9 +66,12 @@ public class Listeners extends TS3EventAdapter {
         //JanetTS.getInstance().getUserManager().addUser(e.getInvokerUniqueId());
         QueryManager qm = JanetTS.getInstance().getQM();
         int cid = info.getChannelId();
-        if (!info.isServerQueryClient() && !qm.hasQuery(cid) && !handleRoomCreation(cid, e.getClientId()))
-            qm.channelAdded(info.getChannelId());
-        JanetTS.getInstance().getRM().check(e.getUniqueClientIdentifier());
+        if (!info.isServerQueryClient()) {
+            if (!info.isServerQueryClient() && !qm.hasQuery(cid) && !handleRoomCreation(cid, e.getClientId()))
+                qm.channelAdded(info.getChannelId());
+            if (e.getClientId() != JanetTS.getClientId())
+                JanetTS.getInstance().getRM().check(e.getUniqueClientIdentifier());
+        }
     }
 
     private boolean handleRoomCreation(int cid, int clientID) {

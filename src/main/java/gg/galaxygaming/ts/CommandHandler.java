@@ -10,7 +10,7 @@ import java.util.Set;
 public class CommandHandler {
     private ArrayList<Cmd> cmds = new ArrayList<>();
 
-    public void setup() {
+    void setup() {
         String path = "gg.galaxygaming.ts.Commands";
         Reflections reflections = new Reflections(path);
         Set<Class<? extends Cmd>> subTypes = reflections.getSubTypesOf(Cmd.class);
@@ -63,7 +63,7 @@ public class CommandHandler {
         return false;
     }
 
-    public ArrayList<String> getHelpList(Source source) { //Info will be used for permissions as well or more likely at least being able to get tsuser as well from it
+    public ArrayList<String> getHelpList(Source source) { //Info will be used for permissions as well or more likely at least being able to get TeamSpeak user as well from it
         ArrayList<String> help = new ArrayList<>();
         for (Cmd cmd : this.cmds) {
             if (cmd.getName() == null || cmd.getUsage() == null || cmd.helpDoc() == null)

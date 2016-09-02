@@ -16,7 +16,7 @@ public class Query {
     private TS3Api api;
     private int cid, clientID;
 
-    public Query(int cid) {
+    Query(int cid) {
         this.cid = cid;
         this.query = new TS3Query(JanetTS.getTSConfig());
         this.query.connect();
@@ -69,10 +69,10 @@ public class Query {
                 Info info = new Info(Source.TeamSpeak, name, getChannelID());
                 if (message.startsWith("!"))
                     valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, info);
-                if (!valid) {
-                    //JanetTS.getInstance().getSlack().sendMessage(name + ": " + message);
-                    //JanetTS.getInstance().getAI().parseMessage(info, message);
-                }
+                /*if (!valid) {
+                    JanetTS.getInstance().getSlack().sendMessage(name + ": " + message);
+                    JanetTS.getInstance().getAI().parseMessage(info, message);
+                }*/
             }
         }
     }

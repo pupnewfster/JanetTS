@@ -26,20 +26,20 @@ public class CmdHelp extends Cmd {
         ArrayList<String> helpList = JanetTS.getInstance().getCommandHandler().getHelpList(info.getSource());
         if (helpList.size() % 10 != 0)
             rounder = 1;
-        int totalpages = (helpList.size() / 10) + rounder;
-        if (page > totalpages) {
-            info.sendMessage("Error: Input a number from 1 to " + Integer.toString(totalpages));
+        int totalPages = (helpList.size() / 10) + rounder;
+        if (page > totalPages) {
+            info.sendMessage("Error: Input a number from 1 to " + totalPages);
             return true;
         }
-        String m = " ---- Help -- Page " + Integer.toString(page) + "/" + Integer.toString(totalpages) + " ---- \n";
+        String m = " ---- Help -- Page " + page + "/" + totalPages + " ---- \n";
         page = page - 1;
         String msg;
         while ((msg = getLine(page, time, helpList)) != null) {
             m += msg + "\n";
             time++;
         }
-        if (page + 1 < totalpages)
-            m += "Type !help " + Integer.toString(page + 2) + " to read the next page.\n";
+        if (page + 1 < totalPages)
+            m += "Type !help " + (page + 2) + " to read the next page.\n";
         info.sendMessage(m);
         return true;
     }

@@ -22,20 +22,20 @@ public class RankManager {
 
     public void check(String tsuid) {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            //Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(this.url, this.user, this.pass);
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM ts_id_to_site_id WHERE ts_id = " + tsuid);
+            ResultSet rs = stmt.executeQuery("SELECT * FROM cms_custom_database_2 WHERE field_3 = \"" + tsuid + "\"");
             ArrayList<Integer> tsRanks = new ArrayList<>();
             int room = -1;
             String siteID = null;
             if (rs.next()) {
-                siteID = rs.getString("site_uid");
-                ResultSet rs2 = stmt.executeQuery("SELECT * FROM core_members WHERE member_id = " + siteID);
+                siteID = rs.getString("member_id");
+                ResultSet rs2 = stmt.executeQuery("SELECT * FROM core_members WHERE member_id = \"" + siteID + "\"");
                 if (rs2.next()) {
                     int primary = rs2.getInt("member_group_id");
                     String secondary = rs2.getString("mgroup_others");
-                    room = rs2.getInt("room_id");
+                    //room = rs2.getInt("room_id"); //TODO UNCOMMENT WHEN IT GETS FIXED
                     String[] secondaries = secondary.split(",");
                     String query = "site_rank_id = " + primary;
                     for (String s : secondaries)
@@ -52,7 +52,7 @@ public class RankManager {
             rs.close();
             TS3Api api = JanetTS.getApi();
             Client client = api.getClientByUId(tsuid);
-            if (!tsRanks.isEmpty() || siteID == null) {
+            if (!tsRanks.isEmpty() || siteID != null) {
                 int dbid = client.getDatabaseId();
                 if (tsRanks.contains(this.sSup) || tsRanks.contains(this.gSup)) {
                     if (room == -1) { //It needs to be created
@@ -65,26 +65,28 @@ public class RankManager {
                         int ncid = api.createChannel(cname, properties);
                         api.setClientChannelGroup(this.caID, ncid, dbid);
                         api.moveQuery(JanetTS.getDefaultChannelID());
-                        stmt.executeQuery("UPDATE core_members SET room_id = " + ncid + " WHERE member_id = " + siteID);
+                        stmt.executeQuery("UPDATE core_members SET room_id = " + ncid + " WHERE member_id = \"" + siteID + "\"");
                     } else //Add them to admin for their room
                         api.setClientChannelGroup(this.caID, room, dbid); //Should it first check to see if they have it already
                 } else if (room != -1) { //Room needs to be removed because they are not a silver or gold supporter
                     api.deleteChannel(room, true);
-                    stmt.executeQuery("UPDATE core_members SET room_id = -1 WHERE member_id = " + siteID);
+                    stmt.executeQuery("UPDATE core_members SET room_id = -1 WHERE member_id = \"" + siteID + "\"");
                 }
                 List<ServerGroup> sgroups = api.getServerGroupsByClient(client);
                 for (ServerGroup sgroup : sgroups)
                     if (tsRanks.contains(sgroup.getId()))
-                        tsRanks.remove(sgroup.getId());
+                        tsRanks.remove(tsRanks.indexOf(sgroup.getId()));
                     else
                         api.removeClientFromServerGroup(sgroup, client);
                 for (int tsRank : tsRanks)
                     api.addClientToServerGroup(tsRank, dbid);
             } else //Send them a message to verify
-                api.sendPrivateMessage(client.getId(), "Click here to verify your account: ");
+                api.sendPrivateMessage(client.getId(), "Click here to verify your account: galaxygaming.gg/index.php/ts3auth");
             stmt.close();
             conn.close();
-        } catch (Exception ignored) { }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void init() {
@@ -94,11 +96,12 @@ public class RankManager {
         this.gSup = config.getInt("goldID");
         this.umrID = config.getInt("umrID");
         this.caID = config.getInt("caID");
-        this.url = "jdbc:mysql://" + config.getString("dbHost") + "/" + config.getString("dbName");
+        this.url = "jdbc:mariadb://" + config.getString("dbHost") + "/" + config.getString("dbName");
         this.user = config.getString("dbUser");
         this.pass = config.getString("dbPassword");
-        for (Client c : JanetTS.getApi().getClients())
-            if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
-                check(c.getUniqueIdentifier());
+        if (JanetTS.getApi().getClients() != null)
+            for (Client c : JanetTS.getApi().getClients())
+                if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
+                    check(c.getUniqueIdentifier());
     }
 }
