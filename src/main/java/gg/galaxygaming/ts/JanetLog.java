@@ -34,7 +34,8 @@ public class JanetLog {
             bw.write(time + " " + message);
             bw.newLine();
             bw.close();
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
     }
 
     private String corTime(String time) {
@@ -50,6 +51,7 @@ public class JanetLog {
             bw.write("#Log for " + file.replaceAll("Logs/", "").replaceAll(".txt", ""));
             bw.newLine();
             bw.close();
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
     }
 }

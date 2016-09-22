@@ -2,7 +2,6 @@ package gg.galaxygaming.ts.QueryManager;
 
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
-import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import gg.galaxygaming.ts.JanetTS;
 
 import java.util.HashMap;
@@ -17,9 +16,10 @@ public class QueryManager {
 
     public void addAllChannels() {
         if (JanetTS.getApi().getClients() != null)
-            for (Client c : JanetTS.getApi().getClients())
+            JanetTS.getApi().getClients().stream().filter(c -> !c.isServerQueryClient() && c.getId() != JanetTS.getClientId()).forEach(c -> channelAdded(c.getChannelId(), false));
+        /*for (Client c : JanetTS.getApi().getClients())
                 if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
-                    channelAdded(c.getChannelId(), false);
+                    channelAdded(c.getChannelId(), false);*/
     }
 
     public void removeAllChannels() {

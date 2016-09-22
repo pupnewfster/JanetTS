@@ -13,7 +13,7 @@ public class JanetAI {//TODO: Upgrade
     private ChatterBotFactory factory;
     private ChatterBot bot;
     private ChatterBotSession cleverBot;
-    
+
     public void parseMessage(Info info, String message) {
         cleverBotParseMessage(info, message);
         /*String name = info.getSender();
@@ -219,8 +219,7 @@ public class JanetAI {//TODO: Upgrade
         this.factory = new ChatterBotFactory();
         try {
             this.bot = this.factory.create(ChatterBotType.CLEVERBOT);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
             System.out.println("CleverBot could not be created");
         }
@@ -278,7 +277,7 @@ public class JanetAI {//TODO: Upgrade
         String response = "Clever Bot could not think";
         try {
             response = this.cleverBot.think(message);
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
         sendMessage(response, info);

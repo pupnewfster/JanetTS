@@ -45,7 +45,7 @@ public class CmdCreateDoodle extends Cmd {
         while (e >= s) {
             if (!timeOpts.equals(""))
                 timeOpts += "||";
-            String minutes =  Integer.toString((int) ((s % 1) * 60));
+            String minutes = Integer.toString((int) ((s % 1) * 60));
             if (minutes.length() == 1)
                 minutes = "0" + minutes;
             timeOpts += Integer.toString((int) s) + minutes;
@@ -98,7 +98,7 @@ public class CmdCreateDoodle extends Cmd {
             String minutes = pieces[1];
             if (!Utils.isLegal(minutes))
                 return -1;
-            h += Integer.parseInt(minutes)/60.0;
+            h += Integer.parseInt(minutes) / 60.0;
         }
         if (conversion.equalsIgnoreCase("PM"))
             h += 12;

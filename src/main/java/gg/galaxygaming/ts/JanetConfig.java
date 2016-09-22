@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 public class JanetConfig {
-    private HashMap<String,Object> config = new HashMap<>();
+    private HashMap<String, Object> config = new HashMap<>();
 
     void setConfig() { //Maybe rename to retrieveConfig and move the loading into memory to up here as well
         Properties prop = new Properties();
@@ -19,7 +19,8 @@ public class JanetConfig {
                 input = new FileInputStream("config.properties");
                 prop.load(input);
                 input.close();
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) {
+            }
             output = new FileOutputStream("config.properties");
             if (prop.getProperty("tsUsername") == null)
                 prop.put("tsUsername", "serveradmin");
@@ -49,6 +50,8 @@ public class JanetConfig {
                 prop.put("silverID", "22");
             if (prop.getProperty("goldID") == null)
                 prop.put("goldID", "23");
+            if (prop.getProperty("communityID") == null)
+                prop.put("communityID", "49");
             if (prop.getProperty("umrID") == null)
                 prop.put("umrID", "32");
             if (prop.getProperty("caID") == null)
@@ -76,30 +79,12 @@ public class JanetConfig {
         InputStream input = null;
         try {
             input = new FileInputStream("config.properties");
-            // load a properties file
-            prop.load(input); //Look at a way to automate this
+            prop.load(input);
             String key;
             for (Object k : prop.keySet()) {
                 key = (String) k;
-                this.config.put(key, prop.getProperty(key)); //Is there a good way to automatically get the default values
+                this.config.put(key, prop.getProperty(key));
             }
-            /*this.config.put("tsUsername", prop.getProperty("tsUsername", "serveradmin"));
-            this.config.put("tsPassword", prop.getProperty("tsPassword", "serveradminpassword"));
-            this.config.put("tsHost", prop.getProperty("tsHost", "0.0.0.0"));
-            this.config.put("SlackToken", prop.getProperty("SlackToken", "token"));
-            this.config.put("WebHook", prop.getProperty("WebHook", "webHook"));
-            this.config.put("Warns", prop.getProperty("Warns", "3"));
-            this.config.put("roomCreatorName", prop.getProperty("roomCreatorName", "Join here to create a new room"));
-            this.config.put("verifiedID", prop.getProperty("verifiedID", "7"));
-            this.config.put("dbName", prop.getProperty("dbName", "database"));
-            this.config.put("dbUser", prop.getProperty("dbUser", "user"));
-            this.config.put("dbPassword", prop.getProperty("dbPassword", "password"));
-            this.config.put("dbHost", prop.getProperty("dbHost", "127.0.0.1:3306"));
-            this.config.put("silverID", prop.getProperty("silverID", "22"));
-            this.config.put("goldID", prop.getProperty("goldID", "23"));
-            this.config.put("umrID", prop.getProperty("umrID", "32"));
-            this.config.put("caID", prop.getProperty("caID", "5"));
-            this.config.put("janetSID", prop.getProperty("janetSID", "janetSlackID"));*/
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {

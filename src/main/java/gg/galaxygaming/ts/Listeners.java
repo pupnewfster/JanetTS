@@ -53,7 +53,7 @@ class Listeners extends TS3EventAdapter {
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
         //if (!info.isServerQueryClient())
-            //JanetTS.getInstance().getQM().channelDeleted(info.getChannelId()); //Delete old one if it is empty
+        //JanetTS.getInstance().getQM().channelDeleted(info.getChannelId()); //Delete old one if it is empty
     }
 
     @Override

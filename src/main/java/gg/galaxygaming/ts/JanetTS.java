@@ -55,7 +55,6 @@ public class JanetTS {
         getApi().selectVirtualServerById(1);
         getApi().setNickname("Janet");
 
-
         ServerQueryInfo info = getApi().whoAmI();
         if (info != null) {
             clientId = info.getId();
@@ -67,15 +66,11 @@ public class JanetTS {
         }
 
         /*Console console = System.console();
-        int i = 0;
         String line;
         CommandHandler ch = getInstance().getCommandHandler();
-        while (i < 1000) { //Needs to change to be over 1000 just needs to make sure first that it doesnt cause issues
-            i++;
-            line = console.readLine();
+        while ((line = console.readLine()) != null)
             if (line.startsWith("!"))
-                ch.handleCommand(line, null, Source.Console);
-        }*/
+                ch.handleCommand(line, new Info(Source.Console));*/
     }
 
     private void postQueryConnect() {
@@ -171,7 +166,7 @@ public class JanetTS {
         return this.um;
     }*/
 
-    public JanetLog getLog(){
+    public JanetLog getLog() {
         return this.log;
     }
 }

@@ -18,7 +18,7 @@ import java.util.List;
 
 public class RankManager {
     private String user, pass, url;
-    private int vid, sSup, gSup, umrID, caID;
+    private int vid, sSup, gSup, umrID, caID, cSup;
 
     public void check(String tsuid) {
         try {
@@ -35,7 +35,6 @@ public class RankManager {
                 if (rs2.next()) {
                     int primary = rs2.getInt("member_group_id");
                     String secondary = rs2.getString("mgroup_others");
-                    //room = rs2.getInt("room_id"); //TODO UNCOMMENT WHEN IT GETS FIXED
                     String[] secondaries = secondary.split(",");
                     String query = "site_rank_id = " + primary;
                     for (String s : secondaries)
@@ -50,11 +49,15 @@ public class RankManager {
                 rs2.close();
             }
             rs.close();
+            rs = stmt.executeQuery("SELECT * FROM cms_custom_database_2 WHERE member_id = \"" + siteID + "\"");
+            if (rs.next())
+                room = rs.getInt("field_4");
+            rs.close();
             TS3Api api = JanetTS.getApi();
             Client client = api.getClientByUId(tsuid);
             if (!tsRanks.isEmpty() || siteID != null) {
                 int dbid = client.getDatabaseId();
-                if (tsRanks.contains(this.sSup) || tsRanks.contains(this.gSup)) {
+                if (tsRanks.contains(this.sSup) || tsRanks.contains(this.gSup) || tsRanks.contains(this.cSup)) {
                     if (room == -1) { //It needs to be created
                         String name = client.getNickname();
                         String cname = name + (name.endsWith("s") ? "'" : "'s") + " Room";
@@ -65,12 +68,12 @@ public class RankManager {
                         int ncid = api.createChannel(cname, properties);
                         api.setClientChannelGroup(this.caID, ncid, dbid);
                         api.moveQuery(JanetTS.getDefaultChannelID());
-                        stmt.executeQuery("UPDATE core_members SET room_id = " + ncid + " WHERE member_id = \"" + siteID + "\"");
+                        stmt.executeQuery("UPDATE cms_custom_database_2 SET field_4 = " + ncid + " WHERE member_id = \"" + siteID + "\"");
                     } else //Add them to admin for their room
                         api.setClientChannelGroup(this.caID, room, dbid); //Should it first check to see if they have it already
                 } else if (room != -1) { //Room needs to be removed because they are not a silver or gold supporter
                     api.deleteChannel(room, true);
-                    stmt.executeQuery("UPDATE core_members SET room_id = -1 WHERE member_id = \"" + siteID + "\"");
+                    stmt.executeQuery("UPDATE cms_custom_database_2 SET field_4 = -1 WHERE member_id = \"" + siteID + "\"");
                 }
                 List<ServerGroup> sgroups = api.getServerGroupsByClient(client);
                 for (ServerGroup sgroup : sgroups)
@@ -80,8 +83,11 @@ public class RankManager {
                         api.removeClientFromServerGroup(sgroup, client);
                 for (int tsRank : tsRanks)
                     api.addClientToServerGroup(tsRank, dbid);
-            } else //Send them a message to verify
-                api.sendPrivateMessage(client.getId(), "Click here to verify your account: galaxygaming.gg/index.php/ts3auth");
+            } else { //Send them a message to verify
+                api.sendPrivateMessage(client.getId(), "Go to: galaxygaming.gg/index.php/ts3auth to verify your account.");
+                for (ServerGroup sgroup : api.getServerGroupsByClient(client))
+                    api.removeClientFromServerGroup(sgroup, client);
+            }
             stmt.close();
             conn.close();
         } catch (Exception e) {
@@ -94,14 +100,16 @@ public class RankManager {
         this.vid = config.getInt("verifiedID");
         this.sSup = config.getInt("silverID");
         this.gSup = config.getInt("goldID");
+        this.cSup = config.getInt("communityID");
         this.umrID = config.getInt("umrID");
         this.caID = config.getInt("caID");
         this.url = "jdbc:mariadb://" + config.getString("dbHost") + "/" + config.getString("dbName");
         this.user = config.getString("dbUser");
         this.pass = config.getString("dbPassword");
         if (JanetTS.getApi().getClients() != null)
-            for (Client c : JanetTS.getApi().getClients())
+            JanetTS.getApi().getClients().stream().filter(c -> !c.isServerQueryClient() && c.getId() != JanetTS.getClientId()).forEach(c -> check(c.getUniqueIdentifier()));
+        /*for (Client c : JanetTS.getApi().getClients())
                 if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
-                    check(c.getUniqueIdentifier());
+                    check(c.getUniqueIdentifier());*/
     }
 }

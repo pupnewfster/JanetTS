@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Set;
 
 public class CommandHandler {
-    private ArrayList<Cmd> cmds = new ArrayList<>();
+    private ArrayList<Cmd> cmds = new ArrayList<>(); //Should this be static
 
-    void setup() {
+    void setup() { //If above not static should this be the constructor instead
         String path = "gg.galaxygaming.ts.Commands";
         Reflections reflections = new Reflections(path);
         Set<Class<? extends Cmd>> subTypes = reflections.getSubTypesOf(Cmd.class);
@@ -23,7 +23,8 @@ public class CommandHandler {
             Cmd command = (Cmd) Cmd.class.getClassLoader().loadClass(pkg + name).newInstance();
             if (command != null)
                 this.cmds.add(command);
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
     }
 
 
@@ -33,7 +34,7 @@ public class CommandHandler {
         if (message.startsWith("!"))
             message = message.replaceFirst("!", "");
         //else if (message.startsWith("/")) //As of the moment we do not have any way to handle slash messages
-            //message = message.replaceFirst("/", "");
+        //message = message.replaceFirst("/", "");
         String command = message.split(" ")[0];
         String arguments = message.replaceFirst(command, "").trim();
         String[] args = arguments.equals("") ? new String[0] : arguments.split(" ");

@@ -38,7 +38,8 @@ public class UserManager {
                 input = new FileInputStream("tsids.properties");
                 prop.load(input);
                 input.close();
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) {
+            }
             output = new FileOutputStream("tsids.properties");
             if (prop.getProperty(tsID) == null)
                 prop.put(tsID, uuid.toString());

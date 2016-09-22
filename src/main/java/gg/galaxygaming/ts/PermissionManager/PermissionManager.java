@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PermissionManager {
-    private HashMap<Integer,HashMap<String,Permission>> serverPermissions = new HashMap<>(), channelPermissions = new HashMap<>(),
+    private HashMap<Integer, HashMap<String, Permission>> serverPermissions = new HashMap<>(), channelPermissions = new HashMap<>(),
             channelGroupPermissions = new HashMap<>();
 
     public void init() {
