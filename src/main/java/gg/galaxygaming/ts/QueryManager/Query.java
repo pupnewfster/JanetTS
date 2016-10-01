@@ -65,14 +65,8 @@ public class Query {
                 String m = cName + " " + name + ": " + message;
                 System.out.println(m);
                 JanetTS.getInstance().getLog().log(m);
-                boolean valid = false;
-                Info info = new Info(Source.TeamSpeak, name, getChannelID());
                 if (message.startsWith("!"))
-                    valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, info);
-                /*if (!valid) {
-                    JanetTS.getInstance().getSlack().sendMessage(name + ": " + message);
-                    JanetTS.getInstance().getAI().parseMessage(info, message);
-                }*/
+                    JanetTS.getInstance().getCommandHandler().handleCommand(message, new Info(Source.TeamSpeak, e.getInvokerUniqueId(), getChannelID()));
             }
         }
     }

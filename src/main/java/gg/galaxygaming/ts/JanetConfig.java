@@ -8,20 +8,15 @@ import java.util.HashMap;
 import java.util.Properties;
 
 public class JanetConfig {
-    private HashMap<String, Object> config = new HashMap<>();
+    private HashMap<String, String> config = new HashMap<>();
 
     void setConfig() { //Maybe rename to retrieveConfig and move the loading into memory to up here as well
         Properties prop = new Properties();
-        OutputStream output = null;
-        InputStream input;
-        try {
-            try {
-                input = new FileInputStream("config.properties");
-                prop.load(input);
-                input.close();
-            } catch (Exception ignored) {
-            }
-            output = new FileOutputStream("config.properties");
+        try (InputStream input = new FileInputStream("config.properties")) {
+            prop.load(input);
+        } catch (Exception ignored) {
+        }
+        try (OutputStream output = new FileOutputStream("config.properties")) {
             if (prop.getProperty("tsUsername") == null)
                 prop.put("tsUsername", "serveradmin");
             if (prop.getProperty("tsPassword") == null)
@@ -58,43 +53,24 @@ public class JanetConfig {
                 prop.put("caID", "5");
             if (prop.getProperty("janetSID") == null)
                 prop.put("janetSID", "janetSlackID");
+            if (prop.getProperty("dndID") == null)
+                prop.put("dndID", "27");
             // save properties to project root folder
             prop.store(output, null);
+            prop.keySet().forEach(k -> this.config.put((String) k, prop.getProperty((String) k)));
             //Can it just load now or does it have to close then reopen to get the latest version
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
     void loadConfig() {
         Properties prop = new Properties();
-        InputStream input = null;
-        try {
-            input = new FileInputStream("config.properties");
+        try (InputStream input = new FileInputStream("config.properties")) {
             prop.load(input);
-            String key;
-            for (Object k : prop.keySet()) {
-                key = (String) k;
-                this.config.put(key, prop.getProperty(key));
-            }
+            prop.keySet().forEach(k -> this.config.put((String) k, prop.getProperty((String) k)));
         } catch (Exception ex) {
             ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -102,16 +78,8 @@ public class JanetConfig {
         return this.config.containsKey(key);
     }
 
-    public Object get(String key) {
-        return this.config.get(key);
-    }
-
     public String getString(String key) {
-        try {
-            return (String) get(key);
-        } catch (Exception e) {
-            return null;
-        }
+        return this.config.get(key);
     }
 
     public int getInt(String key) {

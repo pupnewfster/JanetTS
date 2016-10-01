@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Janet {
     private static ArrayList<String> badwords = new ArrayList<>(), goodwords = new ArrayList<>(), ips = new ArrayList<>();
@@ -116,9 +117,7 @@ public class Janet {
         ArrayList<String> bad = new ArrayList<>();
         for (String badword : badwords) {
             ArrayList<String> s = removeSpaces(orig, badword);
-            for (String w : s)
-                if (w.contains(badword) && check(w, badword) && !isGood(w))
-                    bad.add(w);
+            bad.addAll(s.stream().filter(w -> w.contains(badword) && check(w, badword) && !isGood(w)).collect(Collectors.toList()));
             for (String o : orig) {
                 String t = removeConsec(o);
                 if ((o.contains(badword) && check(o, badword) && !isGood(o)) || (t.contains(badword) && check(t, badword) && !isGood(t)))
@@ -175,10 +174,7 @@ public class Janet {
         temp = c;
         int loc = 0;
         for (int i = 0; i < orig.length(); i++) {
-            if (loc < temp.length() && temp.charAt(loc) == '*')
-                censored += orig.charAt(i) == ' ' ? " " : "*";
-            else
-                censored += orig.charAt(i);
+            censored += (loc < temp.length() && temp.charAt(loc) == '*') ? orig.charAt(i) == ' ' ? " " : "*" : orig.charAt(i);
             if (Character.isLetter(orig.charAt(i)))
                 loc++;
         }
@@ -280,7 +276,7 @@ public class Janet {
                         is.close();
                         if (validateIPAddress(u))
                             orig[i] = starIP(orig[i]);
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
                     }
             }
         }
@@ -296,9 +292,9 @@ public class Janet {
 
     private boolean validateIPAddress(String ipAddress) {
         try {
-            Pattern ipAdd = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
-            return ipAdd.matcher(ipAddress).matches();
-        } catch (Exception e) {
+            return Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                    "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$").matcher(ipAddress).matches();
+        } catch (Exception ignored) {
         }
         return false;
     }

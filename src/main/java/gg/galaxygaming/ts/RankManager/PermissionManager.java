@@ -1,4 +1,4 @@
-package gg.galaxygaming.ts.PermissionManager;
+package gg.galaxygaming.ts.RankManager;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.api.PermissionGroupDatabaseType;
@@ -13,7 +13,7 @@ public class PermissionManager {
     private HashMap<Integer, HashMap<String, Permission>> serverPermissions = new HashMap<>(), channelPermissions = new HashMap<>(),
             channelGroupPermissions = new HashMap<>();
 
-    public void init() {
+    public PermissionManager() {
         readServerPermissions();
         readChannelPermissions();
         readChannelGroupPermissions();
@@ -98,8 +98,7 @@ public class PermissionManager {
             newPerms.addAll(perms);
         mergePermissions(permissions, newPerms);
         JanetTS.getInstance().getSlack().sendMessage("" + System.nanoTime());
-        /*for (String perm : permissions.keySet())
-            System.out.print(perm + "    ");
+        /*permissions.keySet().forEach(perm -> System.out.print(perm + "    "));
         System.out.println();*/
     }
 
@@ -156,7 +155,6 @@ public class PermissionManager {
     }
 
     private void addPermissions(HashMap<String, Permission> permissions, List<Permission> perms) {
-        for (Permission perm : perms)
-            permissions.put(perm.getName(), perm);
+        perms.forEach(perm -> permissions.put(perm.getName(), perm));
     }
 }

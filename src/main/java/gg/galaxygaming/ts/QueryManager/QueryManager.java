@@ -17,14 +17,10 @@ public class QueryManager {
     public void addAllChannels() {
         if (JanetTS.getApi().getClients() != null)
             JanetTS.getApi().getClients().stream().filter(c -> !c.isServerQueryClient() && c.getId() != JanetTS.getClientId()).forEach(c -> channelAdded(c.getChannelId(), false));
-        /*for (Client c : JanetTS.getApi().getClients())
-                if (!c.isServerQueryClient() && c.getId() != JanetTS.getClientId())
-                    channelAdded(c.getChannelId(), false);*/
     }
 
     public void removeAllChannels() {
-        for (int c : this.queries.keySet())
-            this.queries.get(c).disconnect();
+        this.queries.keySet().forEach(c -> this.queries.get(c).disconnect());
         this.queries.clear();
     }
 

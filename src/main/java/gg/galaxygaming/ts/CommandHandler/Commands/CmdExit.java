@@ -1,4 +1,4 @@
-package gg.galaxygaming.ts.Commands;
+package gg.galaxygaming.ts.CommandHandler.Commands;
 
 import gg.galaxygaming.ts.Info;
 import gg.galaxygaming.ts.JanetTS;
@@ -7,7 +7,7 @@ import gg.galaxygaming.ts.Source;
 import java.util.Arrays;
 import java.util.List;
 
-public class CmdExit extends Cmd {
+public class CmdExit implements Cmd {
 
     @Override
     public boolean performCommand(String[] args, Info info) {
@@ -37,6 +37,6 @@ public class CmdExit extends Cmd {
 
     @Override
     public List<Source> supportedSources() {
-        return Arrays.asList(Source.Slack, Source.TeamSpeak, Source.Console);
+        return Arrays.asList(Source.Slack, Source.Console);
     }
 }

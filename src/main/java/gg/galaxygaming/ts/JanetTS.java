@@ -4,7 +4,8 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
-import gg.galaxygaming.ts.PermissionManager.RankManager;
+import gg.galaxygaming.ts.CommandHandler.CommandHandler;
+import gg.galaxygaming.ts.RankManager.RankManager;
 import gg.galaxygaming.ts.QueryManager.QueryManager;
 
 import java.util.Arrays;
@@ -20,23 +21,20 @@ public class JanetTS {
     private static int clientId, dcID;
 
     private final List<String> devs = Arrays.asList("pupnewfster", "Chief"); //Should somehow get this from a url instead for easier updating
-    private CommandHandler cmdHandler = new CommandHandler();
+    private CommandHandler cmdHandler = new CommandHandler("gg.galaxygaming.ts.CommandHandler.Commands");
     private JanetConfig janetConfig = new JanetConfig();
     private JanetRandom random = new JanetRandom();
-    private JanetSlack slack = new JanetSlack();
-    //private PermissionManager pm = new PermissionManager();
+    private JanetSlack slack;
+    //private RankManager pm = new RankManager();
     private QueryManager qm = new QueryManager();
     private RankManager rm = new RankManager();
-    //private UserManager um = new UserManager();
     private JanetAI ai = new JanetAI();
     private JanetLog log = new JanetLog();
 
     public JanetTS() {
         this.janetConfig.setConfig();
-        this.janetConfig.loadConfig();
-        this.slack.init(this.janetConfig);
-        this.ai.initiate();
-        this.cmdHandler.setup();
+        //this.janetConfig.loadConfig();
+        this.slack = new JanetSlack(this.janetConfig);
     }
 
     public static void main(String[] args) {
@@ -158,12 +156,8 @@ public class JanetTS {
         return this.random;
     }
 
-    /*public PermissionManager getPermissionManager() {
+    /*public RankManager getPermissionManager() {
         return this.pm;
-    }*/
-
-    /*public UserManager getUserManager() {
-        return this.um;
     }*/
 
     public JanetLog getLog() {

@@ -14,12 +14,15 @@ import java.util.HashMap;
 class Listeners extends TS3EventAdapter {
     @Override
     public void onTextMessage(TextMessageEvent e) {
-        if (e.getTargetMode() == TextMessageTargetMode.SERVER && e.getInvokerId() != JanetTS.getClientId()) {
-            ClientInfo info = JanetTS.getApi().getClientInfo(e.getInvokerId());
-            String m = "Server " + info.getNickname() + ": " + e.getMessage();
-            JanetTS.getInstance().getSlack().sendMessage(m);
-            JanetTS.getInstance().getLog().log(m);
-            System.out.println(m);
+        if (e.getInvokerId() != JanetTS.getClientId()) {
+            if (e.getTargetMode() == TextMessageTargetMode.SERVER) {
+                ClientInfo info = JanetTS.getApi().getClientInfo(e.getInvokerId());
+                String m = info.getNickname() + ": " + e.getMessage();
+                JanetTS.getInstance().getSlack().sendMessage(m);
+                JanetTS.getInstance().getLog().log(m);
+                System.out.println(m);
+            } else if (e.getTargetMode() == TextMessageTargetMode.CLIENT && e.getMessage().startsWith("!"))
+                JanetTS.getInstance().getCommandHandler().handleCommand(e.getMessage(), new Info(Source.TeamSpeak, e.getInvokerUniqueId(), e.getInvokerId(), true));
         }
     }
 
@@ -27,7 +30,6 @@ class Listeners extends TS3EventAdapter {
     public void onServerEdit(ServerEditedEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getInvokerId());
         String m = "Server edited by " + info.getNickname();
-        JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
     }
@@ -39,7 +41,6 @@ class Listeners extends TS3EventAdapter {
         ClientInfo info = api.getClientInfo(e.getClientId());
         int cid = e.getTargetChannelId();
         String m = info.getNickname() + " moved to " + api.getChannelInfo(cid).getName();
-        JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
         if (!info.isServerQueryClient() && !qm.hasQuery(cid) && !handleRoomCreation(cid, e.getClientId()))
@@ -49,7 +50,6 @@ class Listeners extends TS3EventAdapter {
     @Override
     public void onClientLeave(ClientLeaveEvent e) {
         String m = JanetTS.getApi().getClientByUId(e.getInvokerUniqueId()).getNickname() + " disconnected.";
-        JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
         //if (!info.isServerQueryClient())
@@ -60,7 +60,7 @@ class Listeners extends TS3EventAdapter {
     public void onClientJoin(ClientJoinEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getClientId());
         String m = info.getNickname() + " connected.";
-        JanetTS.getInstance().getSlack().sendMessage(m);
+        //JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
         //JanetTS.getInstance().getUserManager().addUser(e.getInvokerUniqueId());
@@ -94,7 +94,7 @@ class Listeners extends TS3EventAdapter {
                 if (!name.startsWith("Room "))
                     continue;
                 snum = name.replaceFirst("Room ", "");
-                if (Utils.isLegal(snum)) {
+                if (Utils.legalInt(snum)) {
                     num = Integer.parseInt(snum);
                     if (num - lastNum != 1)
                         break;
@@ -103,8 +103,7 @@ class Listeners extends TS3EventAdapter {
                 bcid = c.getId();
             }
         properties.put(ChannelProperty.CHANNEL_ORDER, Integer.toString(bcid));
-        int ncid = api.createChannel("Room " + (lastNum + 1), properties);
-        api.moveClient(clientID, ncid);
+        api.moveClient(clientID, api.createChannel("Room " + (lastNum + 1), properties));
         api.moveQuery(JanetTS.getDefaultChannelID());
         return true;
     }
@@ -113,7 +112,7 @@ class Listeners extends TS3EventAdapter {
     public void onChannelEdit(ChannelEditedEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getInvokerId());
         String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " edited by " + info.getNickname();
-        JanetTS.getInstance().getSlack().sendMessage(m);
+        //JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
     }
@@ -122,7 +121,7 @@ class Listeners extends TS3EventAdapter {
     public void onChannelDescriptionChanged(ChannelDescriptionEditedEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getInvokerId());
         String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " description edited by " + info.getNickname();
-        JanetTS.getInstance().getSlack().sendMessage(m);
+        //JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
     }
@@ -131,7 +130,7 @@ class Listeners extends TS3EventAdapter {
     public void onChannelCreate(ChannelCreateEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getInvokerId());
         String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " created by " + info.getNickname();
-        JanetTS.getInstance().getSlack().sendMessage(m);
+        //JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
     }
@@ -140,7 +139,7 @@ class Listeners extends TS3EventAdapter {
     public void onChannelDeleted(ChannelDeletedEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getInvokerId());
         String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " deleted by " + info.getNickname();
-        JanetTS.getInstance().getSlack().sendMessage(m);
+        //JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
     }
@@ -158,7 +157,7 @@ class Listeners extends TS3EventAdapter {
     public void onChannelPasswordChanged(ChannelPasswordChangedEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getInvokerId());
         String m = JanetTS.getApi().getChannelInfo(e.getChannelId()).getName() + " password changed by " + info.getNickname();
-        JanetTS.getInstance().getSlack().sendMessage(m);
+        //JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
     }
@@ -167,7 +166,7 @@ class Listeners extends TS3EventAdapter {
     public void onPrivilegeKeyUsed(PrivilegeKeyUsedEvent e) {
         ClientInfo info = JanetTS.getApi().getClientInfo(e.getClientId());
         String m = "Privilege key used by " + info.getNickname();
-        JanetTS.getInstance().getSlack().sendMessage(m);
+        //JanetTS.getInstance().getSlack().sendMessage(m);
         JanetTS.getInstance().getLog().log(m);
         System.out.println(m);
     }

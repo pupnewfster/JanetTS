@@ -2,8 +2,8 @@ package gg.galaxygaming.ts;
 
 public class Info {
     private JanetSlack.SlackUser slackUser = null;
-    private String sender = null;
     private boolean isPM = false;
+    private String senderUID;
     private Source source = null;
     private int channelID = -1;
 
@@ -11,15 +11,19 @@ public class Info {
         this.source = source; //Should double check this is Source.Console
     }
 
-    public Info(Source source, String sender, int channelID) {
+    public Info(Source source, String senderUID, int channelID) {
+        this(source, senderUID, channelID, false);
+    }
+
+    public Info(Source source, String senderUID, int channelID, boolean isPM) {
         this.source = source;
-        this.sender = sender;
         this.channelID = channelID;
+        this.senderUID = senderUID;
+        this.isPM = isPM;
     }
 
     public Info(Source source, JanetSlack.SlackUser slackUser, boolean isPM) {
         this.source = source;
-        this.sender = slackUser.getName();
         this.isPM = isPM;
         this.slackUser = slackUser;
     }
@@ -28,8 +32,8 @@ public class Info {
         return this.source;
     }
 
-    public String getSender() {
-        return this.sender;
+    public String getSenderUID() {
+        return this.senderUID;
     }
 
     public boolean isPM() {
@@ -47,10 +51,12 @@ public class Info {
     public void sendMessage(String message) {
         switch (this.source) {
             case TeamSpeak:
-                JanetTS.getInstance().sendTSMessage(message, this.channelID);
+                if (this.isPM)
+                    JanetTS.getApi().sendPrivateMessage(this.channelID, message);
+                else
+                    JanetTS.getInstance().sendTSMessage(message, this.channelID);
                 break;
             case Slack:
-                //JanetTS.getInstance().getSlack().sendMessage(message); //Old method if info was null but can it ever be now
                 JanetTS.getInstance().getSlack().sendMessage(message, this.isPM, this.slackUser);
                 break;
             case Console:

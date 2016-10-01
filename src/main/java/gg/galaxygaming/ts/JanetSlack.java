@@ -22,7 +22,7 @@ public class JanetSlack {
     private WebSocket ws;
     private URL hookURL;
 
-    void init(JanetConfig config) {
+    public JanetSlack(JanetConfig config) {
         this.token = config.getString("SlackToken");
         this.janet_id = config.getString("janetSID");
         String hook = config.getString("WebHook");
@@ -54,7 +54,6 @@ public class JanetSlack {
     }
 
     public void sendMessage(String message) {
-        //sendPost("https://slack.com/api/chat.postMessage?token=" + this.token + "&channel=%23" + this.channel + "&text=" + message.replaceAll(" ", "%20") + "&as_user=true&pretty=1");
         if (message.endsWith("\n"))
             message = message.substring(0, message.length() - 1);
         JsonObject json = new JsonObject();
@@ -125,7 +124,7 @@ public class JanetSlack {
                 response.append(inputLine);
             in.close();
             JsonObject json = Jsoner.deserialize(response.toString(), new JsonObject());
-            String webSocketUrl = (String) json.get("url");
+            String webSocketUrl = json.getString("url");
             if (webSocketUrl != null)
                 openWebSocket(webSocketUrl);
         } catch (Exception ignored) {
@@ -150,15 +149,11 @@ public class JanetSlack {
             JsonObject json = Jsoner.deserialize(response.toString(), new JsonObject());
             //Map users
             JsonArray users = (JsonArray) json.get("members");
-            for (Object user1 : users) {
-                JsonObject user = (JsonObject) user1;
-                boolean deleted = (boolean) user.get("deleted");
-                if (deleted)
+            for (Object u : users) {
+                JsonObject user = (JsonObject) u;
+                if (user.getBoolean("deleted"))
                     continue;
-                //boolean is_bot = (boolean) user.get("is_bot");
-                //if (is_bot) //If it is a bot it may be a webhook in which case it does not have all the information for a SlackUser object to be made
-                //continue;
-                String id = (String) user.get("id");
+                String id = user.getString("id");
                 if (!this.userMap.containsKey(id))
                     this.userMap.put(id, new SlackUser(user));
             }
@@ -174,24 +169,17 @@ public class JanetSlack {
                     //System.out.println(message);
                     JsonObject json = Jsoner.deserialize(message, new JsonObject());
                     if (json.containsKey("type")) {
-                        String type = (String) json.get("type");
-                        if (type.equals("message")) {
-                            SlackUser info;
-                            if (json.containsKey("bot_id"))
-                                info = getUserInfo(janet_id); //TODO: Figure out if there is a way to get the user id of a bot instead of just using janet's
-                            else
-                                info = getUserInfo((String) json.get("user"));
-                            String text = (String) json.get("text");
+                        if (json.getString("type").equals("message")) {
+                            //TODO: Figure out if there is a way to get the user id of a bot instead of just using janet's
+                            SlackUser info = json.containsKey("bot_id") ? getUserInfo(janet_id) : getUserInfo(json.getString("user"));
+                            String text = json.getString("text");
                             while (text.contains("<") && text.contains(">"))
                                 text = text.split("<@")[0] + "@" + getUserInfo(text.split("<@")[1].split(">:")[0]).getName() + ":" + text.split("<@")[1].split(">:")[1];
-                            String channel = (String) json.get("channel");
-                            if (channel.startsWith("C")) //Channel
-                                sendSlackChat(info, text, false);
-                            else if (channel.startsWith("D")) //Direct Message
+                            String channel = json.getString("channel");
+                            if (channel.startsWith("D")) //Direct Message
                                 sendSlackChat(info, text, true);
-                            else if (channel.startsWith("G")) { //Group
+                            else if (channel.startsWith("C") || channel.startsWith("G")) //Channel or Group
                                 sendSlackChat(info, text, false);
-                            }
                         }
                     }
                 }
@@ -213,12 +201,11 @@ public class JanetSlack {
             in.close();
             JsonObject json = Jsoner.deserialize(response.toString(), new JsonObject());
             //Map user channels
-            JsonArray ims = (JsonArray) json.get("ims");
-            for (int i = ims.size() - 1; i >= 0; i--) {
-                JsonObject im = (JsonObject) ims.get(i);
-                String userID = (String) im.get("user");
+            for (Object i : (JsonArray) json.get("ims")) {
+                JsonObject im = (JsonObject) i;
+                String userID = im.getString("user");
                 if (this.userMap.containsKey(userID))
-                    this.userMap.get(userID).setChannel((String) im.get("id"));
+                    this.userMap.get(userID).setChannel(im.getString("id"));
             }
         } catch (Exception ignored) {
         }
@@ -231,7 +218,7 @@ public class JanetSlack {
         }
         if (info.isBot()) {
             if (info.getID().equals(this.janet_id) && message.split(" ").length == 1)
-                try {
+                try { //What was the reason for this try catch
                     if (JanetTS.getApi().getClientByUId(message) != null)
                         JanetTS.getInstance().getRM().check(message);
                 } catch (Exception ignored) {
@@ -258,20 +245,20 @@ public class JanetSlack {
         private int rank = 0;
 
         public SlackUser(JsonObject json) {
-            this.id = (String) json.get("id");
-            this.name = (String) json.get("name");
-            if ((boolean) json.get("is_bot")) {
+            this.id = json.getString("id");
+            this.name = json.getString("name");
+            if (json.getBoolean("is_bot")) {
                 this.isBot = true;
                 this.rank = 2;
-            } else if ((boolean) json.get("is_primary_owner"))
+            } else if (json.getBoolean("is_primary_owner"))
                 this.rank = 3;
-            else if ((boolean) json.get("is_owner"))
+            else if (json.getBoolean("is_owner"))
                 this.rank = 2;
-            else if ((boolean) json.get("is_admin"))
+            else if (json.getBoolean("is_admin"))
                 this.rank = 1;
-            else if ((boolean) json.get("is_ultra_restricted"))
+            else if (json.getBoolean("is_ultra_restricted"))
                 this.rank = -2;
-            else if ((boolean) json.get("is_restricted"))
+            else if (json.getBoolean("is_restricted"))
                 this.rank = -1;
             //else leave it at 0 for member
         }
