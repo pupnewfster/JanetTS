@@ -5,8 +5,8 @@ import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
 import gg.galaxygaming.ts.CommandHandler.CommandHandler;
-import gg.galaxygaming.ts.RankManager.RankManager;
 import gg.galaxygaming.ts.QueryManager.QueryManager;
+import gg.galaxygaming.ts.RankManager.RankManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +28,7 @@ public class JanetTS {
     //private RankManager pm = new RankManager();
     private QueryManager qm = new QueryManager();
     private RankManager rm = new RankManager();
-    private JanetAI ai = new JanetAI();
+    //private JanetAI ai = new JanetAI();
     private JanetLog log = new JanetLog();
 
     public JanetTS() {
@@ -144,9 +144,9 @@ public class JanetTS {
         return this.slack;
     }
 
-    public JanetAI getAI() {
+    /*public JanetAI getAI() {
         return this.ai;
-    }
+    }*/
 
     public QueryManager getQM() {
         return this.qm;

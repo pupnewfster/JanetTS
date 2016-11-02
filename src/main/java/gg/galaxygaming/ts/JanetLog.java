@@ -41,6 +41,7 @@ public class JanetLog {
     }
 
     private void fileCreate(String file) {
+        JanetTS.getInstance().getRM().checkAll();
         File f = new File(file);
         try {
             if (!f.createNewFile())

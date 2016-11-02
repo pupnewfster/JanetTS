@@ -18,7 +18,7 @@ import java.util.List;
 
 public class RankManager {
     private String user, pass, url;
-    private int vid, sSup, gSup, umrID, caID, cSup;
+    private int vid, sSup, gSup, umrID, caID, cSup, dndID;
 
     public void init() {
         JanetConfig config = JanetTS.getInstance().getConfig();
@@ -31,8 +31,13 @@ public class RankManager {
         this.caID = config.getInt("caID");
         this.user = config.getString("dbUser");
         this.pass = config.getString("dbPassword");
+        this.dndID = config.getInt("dndID");
         if (JanetTS.getApi().getClients() != null)
-            JanetTS.getApi().getClients().stream().filter(c -> !c.isServerQueryClient() && c.getId() != JanetTS.getClientId()).forEach(c -> check(c.getUniqueIdentifier()));
+            checkAll();
+    }
+
+    public void checkAll() {
+        JanetTS.getApi().getClients().stream().filter(c -> !c.isServerQueryClient() && c.getId() != JanetTS.getClientId()).forEach(c -> check(c.getUniqueIdentifier()));
     }
 
     public void check(String tsuid) {
@@ -93,7 +98,7 @@ public class RankManager {
                 for (ServerGroup sgroup : sgroups)
                     if (tsRanks.contains(sgroup.getId()))
                         tsRanks.remove(tsRanks.indexOf(sgroup.getId()));
-                    else
+                    else if (sgroup.getId() != this.dndID)
                         api.removeClientFromServerGroup(sgroup, client);
                 tsRanks.forEach(tsRank -> api.addClientToServerGroup(tsRank, dbid));
             } else { //Send them a message to verify
