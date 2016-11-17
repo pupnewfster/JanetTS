@@ -22,7 +22,7 @@ public class CmdDnd implements Cmd {
                 alreadyHas = true;
                 break;
             }
-        info.sendMessage("Successfully " + (alreadyHas ? "removed" : "added") + " from DND.");
+        info.sendMessage("Successfully " + (alreadyHas ? "removed from" : "added to") + " DND.");
         if (alreadyHas)
             api.removeClientFromServerGroup(dnd, c.getDatabaseId());
         else
