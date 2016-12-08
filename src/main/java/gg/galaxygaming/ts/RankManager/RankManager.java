@@ -15,23 +15,28 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 public class RankManager {
-    private String user, pass, url;
+    private String url;
     private int vid, sSup, gSup, umrID, caID, cSup, dndID;
+    private Properties properties;
 
     public void init() {
         JanetConfig config = JanetTS.getInstance().getConfig();
-        this.url = "jdbc:mariadb://" + config.getString("dbHost") + "/" + config.getString("dbName");
+        this.url = "jdbc:mysql://" + config.getString("dbHost") + "/" + config.getString("dbName");
         this.vid = config.getInt("verifiedID");
         this.sSup = config.getInt("silverID");
         this.gSup = config.getInt("goldID");
         this.cSup = config.getInt("communityID");
         this.umrID = config.getInt("umrID");
         this.caID = config.getInt("caID");
-        this.user = config.getString("dbUser");
-        this.pass = config.getString("dbPassword");
         this.dndID = config.getInt("dndID");
+        this.properties = new Properties();
+        properties.setProperty("user", config.getString("dbUser"));
+        properties.setProperty("password", config.getString("dbPassword"));
+        properties.setProperty("useSSL", "false");
+        properties.setProperty("autoReconnect", "true");
         if (JanetTS.getApi().getClients() != null)
             checkAll();
     }
@@ -42,7 +47,7 @@ public class RankManager {
 
     public void check(String tsuid) {
         try {
-            Connection conn = DriverManager.getConnection(this.url, this.user, this.pass);
+            Connection conn = DriverManager.getConnection(this.url, this.properties);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM cms_custom_database_2 WHERE field_3 = \"" + tsuid + "\"");
             ArrayList<Integer> tsRanks = new ArrayList<>();
@@ -89,7 +94,7 @@ public class RankManager {
                         api.moveQuery(JanetTS.getDefaultChannelID());
                         stmt.executeQuery("UPDATE cms_custom_database_2 SET field_4 = " + ncid + " WHERE member_id = \"" + siteID + "\"");
                     } else if (room != client.getChannelId() || this.caID != client.getChannelGroupId()) //Add them to admin for their room
-                        api.setClientChannelGroup(this.caID, room, dbid); //If they are in the room already dont bother regiving it otherwise do just in case
+                        api.setClientChannelGroup(this.caID, room, dbid); //If they are in the room already don't bother regiving it otherwise do just in case
                 } else if (room != -1) { //Room needs to be removed because they are not a silver or gold supporter
                     api.deleteChannel(room, true);
                     stmt.executeQuery("UPDATE cms_custom_database_2 SET field_4 = -1 WHERE member_id = \"" + siteID + "\"");

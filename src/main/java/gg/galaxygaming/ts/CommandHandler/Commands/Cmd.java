@@ -6,6 +6,7 @@ import gg.galaxygaming.ts.Source;
 import java.util.List;
 
 public interface Cmd {
+    @SuppressWarnings("SameReturnValue")
     boolean performCommand(String[] args, Info info);
 
     String helpDoc();

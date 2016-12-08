@@ -11,19 +11,19 @@ public class Info {
         this.source = source; //Should double check this is Source.Console
     }
 
-    public Info(Source source, String senderUID, int channelID) {
-        this(source, senderUID, channelID, false);
+    public Info(String senderUID, int channelID) {
+        this(senderUID, channelID, false);
     }
 
-    public Info(Source source, String senderUID, int channelID, boolean isPM) {
-        this.source = source;
+    public Info(String senderUID, int channelID, boolean isPM) {
+        this.source = Source.TeamSpeak;
         this.channelID = channelID;
         this.senderUID = senderUID;
         this.isPM = isPM;
     }
 
-    public Info(Source source, JanetSlack.SlackUser slackUser, boolean isPM) {
-        this.source = source;
+    public Info(JanetSlack.SlackUser slackUser, boolean isPM) {
+        this.source = Source.Slack;
         this.isPM = isPM;
         this.slackUser = slackUser;
     }

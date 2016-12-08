@@ -16,9 +16,10 @@ import java.net.URL;
 import java.util.HashMap;
 
 public class JanetSlack {
-    private HashMap<String, SlackUser> userMap = new HashMap<>();
+    private final HashMap<String, SlackUser> userMap = new HashMap<>();
     private boolean isConnected = false;
-    private String token, janet_id;
+    private final String token;
+    private final String janet_id;
     private WebSocket ws;
     private URL hookURL;
 
@@ -226,7 +227,7 @@ public class JanetSlack {
             return;
         }
         boolean valid = false;
-        Info uInfo = new Info(Source.Slack, info, isPM);
+        Info uInfo = new Info(info, isPM);
         if (message.startsWith("!") && info.isAdmin()) //TODO check if they have permissions and not just if they are slack admin
             valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, uInfo);
         if (!valid && !isPM) {
@@ -240,7 +241,9 @@ public class JanetSlack {
     }
 
     public class SlackUser {
-        private String id, name, channel;
+        private final String id;
+        private final String name;
+        private String channel;
         private boolean isBot = false;
         private int rank = 0;
 

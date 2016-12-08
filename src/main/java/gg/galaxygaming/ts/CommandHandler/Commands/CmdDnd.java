@@ -7,7 +7,7 @@ import gg.galaxygaming.ts.Info;
 import gg.galaxygaming.ts.JanetTS;
 import gg.galaxygaming.ts.Source;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class CmdDnd implements Cmd {
@@ -52,6 +52,6 @@ public class CmdDnd implements Cmd {
 
     @Override
     public List<Source> supportedSources() {
-        return Arrays.asList(Source.TeamSpeak);
+        return Collections.singletonList(Source.TeamSpeak);
     }
 }

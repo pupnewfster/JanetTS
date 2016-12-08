@@ -10,7 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-public class CommandParser {
+class CommandParser {
     public void readFile(String path) {
         File f = new File(path);
         if (!f.exists() || !Files.getFileExtension(f.getName()).equals("pup"))

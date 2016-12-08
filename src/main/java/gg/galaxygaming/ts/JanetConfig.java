@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 public class JanetConfig {
-    private HashMap<String, String> config = new HashMap<>();
+    private final HashMap<String, String> config = new HashMap<>();
 
     void setConfig() { //Maybe rename to retrieveConfig and move the loading into memory to up here as well
         Properties prop = new Properties();

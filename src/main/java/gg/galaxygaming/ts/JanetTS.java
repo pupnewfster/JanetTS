@@ -21,17 +21,17 @@ public class JanetTS {
     private static int clientId, dcID;
 
     private final List<String> devs = Arrays.asList("pupnewfster", "Chief"); //Should somehow get this from a url instead for easier updating
-    private CommandHandler cmdHandler = new CommandHandler("gg.galaxygaming.ts.CommandHandler.Commands");
-    private JanetConfig janetConfig = new JanetConfig();
-    private JanetRandom random = new JanetRandom();
-    private JanetSlack slack;
+    private final CommandHandler cmdHandler = new CommandHandler("gg.galaxygaming.ts.CommandHandler.Commands");
+    private final JanetConfig janetConfig = new JanetConfig();
+    private final JanetRandom random = new JanetRandom();
+    private final JanetSlack slack;
     //private RankManager pm = new RankManager();
-    private QueryManager qm = new QueryManager();
-    private RankManager rm = new RankManager();
+    private final QueryManager qm = new QueryManager();
+    private final RankManager rm = new RankManager();
     //private JanetAI ai = new JanetAI();
-    private JanetLog log = new JanetLog();
+    private final JanetLog log = new JanetLog();
 
-    public JanetTS() {
+    private JanetTS() {
         this.janetConfig.setConfig();
         //this.janetConfig.loadConfig();
         this.slack = new JanetSlack(this.janetConfig);
@@ -42,7 +42,7 @@ public class JanetTS {
         JanetConfig jConfig = getInstance().getConfig();
         config = new TS3Config();
         config.setHost(jConfig.getString("tsHost"));
-        config.setDebugLevel(Level.WARNING);
+        config.setDebugLevel(Level.OFF);
         config.setFloodRate(TS3Query.FloodRate.UNLIMITED);
 
         query = new TS3Query(config);

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CommandHandler {
-    private ArrayList<Cmd> cmds = new ArrayList<>();
+    private final ArrayList<Cmd> cmds = new ArrayList<>();
 
     public CommandHandler(String path) {
         Reflections reflections = new Reflections(path);

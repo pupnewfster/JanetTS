@@ -5,9 +5,9 @@ import com.google.code.chatterbotapi.ChatterBotFactory;
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.google.code.chatterbotapi.ChatterBotType;
 
-public class JanetAI {//TODO: Upgrade
+class JanetAI {//TODO: Upgrade
     private ChatterBot bot;
-    private ChatterBotSession cleverBot;
+    private final ChatterBotSession cleverBot;
 
     public JanetAI() {
         //Cleverbot init
@@ -30,7 +30,7 @@ public class JanetAI {//TODO: Upgrade
         sendMessage(response, info);
     }
 
-    public void sendMessage(String message, Info info) {
+    private void sendMessage(String message, Info info) {
         if (info.getSource().equals(Source.Slack) && !info.isPM())
             JanetTS.getInstance().sendTSMessage("To Slack - " + message);
         info.sendMessage(message);

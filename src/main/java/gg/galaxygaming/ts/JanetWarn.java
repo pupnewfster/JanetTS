@@ -3,11 +3,11 @@ package gg.galaxygaming.ts;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class JanetWarn {
-    private static HashMap<UUID, Integer> warnCount = new HashMap<>();
-    private String JanetName = "Janet: ";
-    private JanetConfig config = JanetTS.getInstance().getConfig();
-    private int warns = config.getInt("Warns");
+class JanetWarn {
+    private static final HashMap<UUID, Integer> warnCount = new HashMap<>();
+    private final String JanetName = "Janet: ";
+    private final JanetConfig config = JanetTS.getInstance().getConfig();
+    private final int warns = config.getInt("Warns");
 
     public void removePlayer(UUID uuid) {
         warnCount.remove(uuid);

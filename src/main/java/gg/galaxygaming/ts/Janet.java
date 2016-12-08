@@ -9,11 +9,14 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class Janet {
-    private static ArrayList<String> badwords = new ArrayList<>(), goodwords = new ArrayList<>(), ips = new ArrayList<>();
-    private static HashMap<UUID, Long[]> lastChat = new HashMap<>(), lastCmd = new HashMap<>();
+class Janet {
+    private static final ArrayList<String> badwords = new ArrayList<>();
+    private static final ArrayList<String> goodwords = new ArrayList<>();
+    private static final ArrayList<String> ips = new ArrayList<>();
+    private static final HashMap<UUID, Long[]> lastChat = new HashMap<>();
+    private static final HashMap<UUID, Long[]> lastCmd = new HashMap<>();
     JanetConfig config = JanetTS.getInstance().getConfig();
-    JanetWarn warns = new JanetWarn();
+    private final JanetWarn warns = new JanetWarn();
 
     public void initiate() {//now has its own function instead of reading them all every time Janet was re-initiated
         /*File customConfigFileCensors = new File("plugins/Necessities", "censors.yml");
@@ -87,6 +90,7 @@ public class Janet {
         l[1] = toPut;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isFull(Long[] l) {
         return !(l[0] == null || l[1] == null);
     }
@@ -95,7 +99,7 @@ public class Janet {
         return internalCaps(message) ? message.toLowerCase() : message;
     }
 
-    public boolean internalCaps(String message) {
+    private boolean internalCaps(String message) {
         String orig = message.replaceAll("[^A-Z]", "");
         int s = orig.length();
         message = message.replaceAll("[^a-zA-Z]", "");
@@ -112,15 +116,15 @@ public class Janet {
         return censored;
     }
 
-    public String internalLang(String message) {
+    private String internalLang(String message) {
         String[] orig = message.replaceAll("[^a-zA-Z ]", "").toUpperCase().split(" ");
         ArrayList<String> bad = new ArrayList<>();
-        for (String badword : badwords) {
-            ArrayList<String> s = removeSpaces(orig, badword);
-            bad.addAll(s.stream().filter(w -> w.contains(badword) && check(w, badword) && !isGood(w)).collect(Collectors.toList()));
+        for (String badWord : badwords) {
+            ArrayList<String> s = removeSpaces(orig, badWord);
+            bad.addAll(s.stream().filter(w -> w.contains(badWord) && check(w, badWord) && !isGood(w)).collect(Collectors.toList()));
             for (String o : orig) {
                 String t = removeConsec(o);
-                if ((o.contains(badword) && check(o, badword) && !isGood(o)) || (t.contains(badword) && check(t, badword) && !isGood(t)))
+                if ((o.contains(badWord) && check(o, badWord) && !isGood(o)) || (t.contains(badWord) && check(t, badWord) && !isGood(t)))
                     bad.add(o);
             }
         }
@@ -144,6 +148,7 @@ public class Janet {
                 msg.replaceAll(bad, "").length() >= msg.length() * 3.0 / 5;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isGood(String msg) {
         for (String g : goodwords)
             if (msg.startsWith(g))
@@ -257,7 +262,7 @@ public class Janet {
         return censored;
     }
 
-    public String internalAdds(String message) {
+    private String internalAdds(String message) {
         String[] orig = message.split(" ");
         String temp;
         for (int i = 0; i < orig.length; i++) {

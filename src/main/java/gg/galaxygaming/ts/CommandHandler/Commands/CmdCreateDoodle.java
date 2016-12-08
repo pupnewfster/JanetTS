@@ -6,6 +6,7 @@ import gg.galaxygaming.ts.Utils;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 public class CmdCreateDoodle implements Cmd {
@@ -129,6 +130,6 @@ public class CmdCreateDoodle implements Cmd {
 
     @Override
     public List<Source> supportedSources() {
-        return Arrays.asList(Source.Slack);
+        return Collections.singletonList(Source.Slack);
     }
 }

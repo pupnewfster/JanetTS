@@ -7,7 +7,7 @@ import gg.galaxygaming.ts.JanetTS;
 import java.util.HashMap;
 
 public class QueryManager {
-    private HashMap<Integer, Query> queries = new HashMap<>();
+    private final HashMap<Integer, Query> queries = new HashMap<>();
     private int lastQuery = 0;
 
     public Query getQuery(int i) {

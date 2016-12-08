@@ -9,9 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PermissionManager {
-    private HashMap<Integer, HashMap<String, Permission>> serverPermissions = new HashMap<>(), channelPermissions = new HashMap<>(),
-            channelGroupPermissions = new HashMap<>();
+class PermissionManager {
+    private final HashMap<Integer, HashMap<String, Permission>> serverPermissions = new HashMap<>();
+    private final HashMap<Integer, HashMap<String, Permission>> channelPermissions = new HashMap<>();
+    private final HashMap<Integer, HashMap<String, Permission>> channelGroupPermissions = new HashMap<>();
 
     public PermissionManager() {
         readServerPermissions();
@@ -77,7 +78,7 @@ public class PermissionManager {
         //If they get split up somewhat so that not all have to be updated each time
         //If serveredit and channel edit get done on the permissions for either changing,
         //then only two things have to be rechecked for the client if it keeps track of the groups permissions in such a way that
-        //it isnt per client but per group, client permissions would need to be checked... channel changed/server joined?
+        //it isn't per client but per group, client permissions would need to be checked... channel changed/server joined?
 
         HashMap<String, Permission> permissions = new HashMap<>();
         TS3Api api = JanetTS.getApi();
@@ -140,7 +141,7 @@ public class PermissionManager {
     private void mergePermissions(HashMap<String, Permission> permissions, List<Permission> perms) {
         for (Permission perm : perms) {
             String name = perm.getName();
-            if (permissions.containsKey(name)) { //Is this even usefull now given new system doesnt mix the things strengths of these yet
+            if (permissions.containsKey(name)) { //Is this even useful now given new system doesn't mix the things strengths of these yet
                 Permission otherPerm = permissions.get(name);
                 int value = perm.getValue();
                 int other = otherPerm.getValue();
