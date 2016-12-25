@@ -7,8 +7,14 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
 import gg.galaxygaming.ts.CommandHandler.CommandHandler;
 import gg.galaxygaming.ts.QueryManager.QueryManager;
 import gg.galaxygaming.ts.RankManager.RankManager;
+import org.jline.utils.InputStreamReader;
+import org.json.simple.JsonArray;
+import org.json.simple.JsonObject;
+import org.json.simple.Jsoner;
 
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -20,7 +26,7 @@ public class JanetTS {
     private static TS3Api API;
     private static int clientId, dcID;
 
-    private final List<String> devs = Arrays.asList("pupnewfster", "Chief"); //Should somehow get this from a url instead for easier updating
+    private final List<DevInfo> devs = new ArrayList<>();
     private final CommandHandler cmdHandler = new CommandHandler("gg.galaxygaming.ts.CommandHandler.Commands");
     private final JanetConfig janetConfig = new JanetConfig();
     private final JanetRandom random = new JanetRandom();
@@ -120,6 +126,68 @@ public class JanetTS {
         query.exit();
     }
 
+    public boolean isDev(String slackID) {
+        for (DevInfo i : devs)
+            if (slackID.equals(i.getSlackID()))
+                return true;
+        return false;
+    } //TODO check against siteID for ts side
+
+    public List<DevInfo> getDevs() {
+        return this.devs;
+    }
+
+    private void getDevInfo() {
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(new URL("http://galaxygaming.gg/staff.json").openConnection().getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null)
+                response.append(inputLine);
+            in.close();
+            JsonObject json = Jsoner.deserialize(response.toString(), new JsonObject());
+            JsonArray ar = (JsonArray) json.get("devs");
+            JsonObject ls = (JsonObject) json.get("Teamspeak");
+            JsonArray lsDevs = (JsonArray) ls.get("devs");
+            for (int i = 0; i < lsDevs.size(); i++) {
+                JsonObject dev = null;
+                int devID = lsDevs.getInteger(i);
+                for (Object a : ar)
+                    if (devID == ((JsonObject) a).getInteger("devID")) {
+                        dev = (JsonObject) a;
+                        break;
+                    }
+                if (dev != null)
+                    this.devs.add(new DevInfo(dev));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public class DevInfo {
+        private String slackID, name;
+        private int siteID;
+
+        private DevInfo(JsonObject dev) {
+            this.siteID = dev.getInteger("siteID");
+            this.slackID = dev.getString("slackID");
+            this.name = dev.getString("name");
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getSlackID() {
+            return this.slackID;
+        }
+
+        public int getSiteID() {
+            return this.siteID;
+        }
+    }
+
     public JanetConfig getConfig() {
         return this.janetConfig;
     }
@@ -128,16 +196,8 @@ public class JanetTS {
         return this.rm;
     }
 
-    public boolean isDev(String name) {
-        return this.devs.contains(name);
-    }
-
     public CommandHandler getCommandHandler() {
         return this.cmdHandler;
-    }
-
-    public List<String> getDevs() {
-        return this.devs;
     }
 
     public JanetSlack getSlack() {

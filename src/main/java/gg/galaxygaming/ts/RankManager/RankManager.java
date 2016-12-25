@@ -45,11 +45,11 @@ public class RankManager {
         JanetTS.getApi().getClients().stream().filter(c -> !c.isServerQueryClient() && c.getId() != JanetTS.getClientId()).forEach(c -> check(c.getUniqueIdentifier()));
     }
 
-    public void check(String tsuid) {
+    public void check(String tsUID) {
         try {
             Connection conn = DriverManager.getConnection(this.url, this.properties);
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM cms_custom_database_2 WHERE field_3 = \"" + tsuid + "\"");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM cms_custom_database_2 WHERE field_3 = \"" + tsUID + "\"");
             ArrayList<Integer> tsRanks = new ArrayList<>();
             int room = -1;
             String siteID = null;
@@ -78,9 +78,9 @@ public class RankManager {
                 room = rs.getInt("field_4");
             rs.close();
             TS3Api api = JanetTS.getApi();
-            Client client = api.getClientByUId(tsuid);
+            Client client = api.getClientByUId(tsUID);
             if (!tsRanks.isEmpty() || siteID != null) {
-                int dbid = client.getDatabaseId();
+                int dbID = client.getDatabaseId();
                 if (tsRanks.contains(this.sSup) || tsRanks.contains(this.gSup) || tsRanks.contains(this.cSup)) {
                     if (room == -1) { //It needs to be created
                         String name = client.getNickname();
@@ -89,12 +89,12 @@ public class RankManager {
                         properties.put(ChannelProperty.CHANNEL_FLAG_PERMANENT, "1");
                         properties.put(ChannelProperty.CPID, Integer.toString(this.umrID));
                         properties.put(ChannelProperty.CHANNEL_TOPIC, cname);
-                        int ncid = api.createChannel(cname, properties);
-                        api.setClientChannelGroup(this.caID, ncid, dbid);
+                        int ncID = api.createChannel(cname, properties);
+                        api.setClientChannelGroup(this.caID, ncID, dbID);
                         api.moveQuery(JanetTS.getDefaultChannelID());
-                        stmt.executeQuery("UPDATE cms_custom_database_2 SET field_4 = " + ncid + " WHERE member_id = \"" + siteID + "\"");
+                        stmt.executeQuery("UPDATE cms_custom_database_2 SET field_4 = " + ncID + " WHERE member_id = \"" + siteID + "\"");
                     } else if (room != client.getChannelId() || this.caID != client.getChannelGroupId()) //Add them to admin for their room
-                        api.setClientChannelGroup(this.caID, room, dbid); //If they are in the room already don't bother regiving it otherwise do just in case
+                        api.setClientChannelGroup(this.caID, room, dbID); //If they are in the room already don't bother giving it again, otherwise do just in case
                 } else if (room != -1) { //Room needs to be removed because they are not a silver or gold supporter
                     api.deleteChannel(room, true);
                     stmt.executeQuery("UPDATE cms_custom_database_2 SET field_4 = -1 WHERE member_id = \"" + siteID + "\"");
@@ -105,7 +105,7 @@ public class RankManager {
                         tsRanks.remove(tsRanks.indexOf(sgroup.getId()));
                     else if (sgroup.getId() != this.dndID)
                         api.removeClientFromServerGroup(sgroup, client);
-                tsRanks.forEach(tsRank -> api.addClientToServerGroup(tsRank, dbid));
+                tsRanks.forEach(tsRank -> api.addClientToServerGroup(tsRank, dbID));
             } else { //Send them a message to verify
                 api.sendPrivateMessage(client.getId(), "Go to: galaxygaming.gg/index.php/ts3auth to verify your account.");
                 api.getServerGroupsByClient(client).forEach(sg -> api.removeClientFromServerGroup(sg, client));

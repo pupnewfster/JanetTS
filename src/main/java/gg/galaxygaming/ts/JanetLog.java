@@ -6,7 +6,8 @@ import java.io.FileWriter;
 import java.util.Calendar;
 
 public class JanetLog {
-    public JanetLog() {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    JanetLog() {
         File d = new File("Logs");
         if (!d.exists())
             d.mkdir(); //If this is false there was an error making the directory

@@ -232,7 +232,7 @@ public class JanetSlack {
             valid = JanetTS.getInstance().getCommandHandler().handleCommand(message, uInfo);
         if (!valid && !isPM) {
             String m = "From Slack - " + info.getName() + ": " + message;
-            //JanetTS.getInstance().sendTSMessage(m); //Commented out until we decide where it should be sent channelwise
+            //JanetTS.getInstance().sendTSMessage(m); //Commented out until we decide what channel it should be sent to
             JanetTS.getInstance().getLog().log(m);
             System.out.println(m);
         }

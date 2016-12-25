@@ -99,26 +99,26 @@ class Listeners extends TS3EventAdapter {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean handleRoomCreation(int cid, int clientID) {
         TS3Api api = JanetTS.getApi();
-        ChannelInfo cinfo = api.getChannelInfo(cid);
-        if (!cinfo.getName().equalsIgnoreCase(JanetTS.getInstance().getConfig().getString("roomCreatorName")))
+        ChannelInfo cInfo = api.getChannelInfo(cid);
+        if (!cInfo.getName().equalsIgnoreCase(JanetTS.getInstance().getConfig().getString("roomCreatorName")))
             return false;
-        int pid = cinfo.getParentChannelId();
-        ChannelInfo pinfo = api.getChannelInfo(pid);
-        if (pinfo.getMaxClients() > 0 || pinfo.getName().startsWith("[cspacer"))
+        int pid = cInfo.getParentChannelId();
+        ChannelInfo pInfo = api.getChannelInfo(pid);
+        if (pInfo.getMaxClients() > 0 || pInfo.getName().startsWith("[cspacer"))
             return false;
         final HashMap<ChannelProperty, String> properties = new HashMap<>();
         properties.put(ChannelProperty.CPID, Integer.toString(pid));
-        properties.put(ChannelProperty.CHANNEL_DESCRIPTION, "Janet generated " + pinfo.getName() + " channel");
-        String name, snum;
+        properties.put(ChannelProperty.CHANNEL_DESCRIPTION, "Janet generated " + pInfo.getName() + " channel");
+        String name, sNum;
         int lastNum = 0, num, bcid = cid;
         for (Channel c : api.getChannels())
             if (c.getParentChannelId() == pid) {
                 name = c.getName();
                 if (!name.startsWith("Room "))
                     continue;
-                snum = name.replaceFirst("Room ", "");
-                if (Utils.legalInt(snum)) {
-                    num = Integer.parseInt(snum);
+                sNum = name.replaceFirst("Room ", "");
+                if (Utils.legalInt(sNum)) {
+                    num = Integer.parseInt(sNum);
                     if (num - lastNum != 1)
                         break;
                     lastNum = num;

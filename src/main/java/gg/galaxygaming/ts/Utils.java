@@ -1,6 +1,7 @@
 package gg.galaxygaming.ts;
 
 public class Utils {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static boolean legalDouble(String input) {
         try {
             Double.parseDouble(input);
@@ -10,6 +11,7 @@ public class Utils {
         return false;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static boolean legalInt(String input) {
         try {
             Integer.parseInt(input);
