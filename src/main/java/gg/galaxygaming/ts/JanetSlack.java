@@ -95,10 +95,6 @@ public class JanetSlack {
         return this.userMap.get(id);
     }
 
-    /**
-     * @deprecated Still works just has not been used for a long time and is unneeded
-     */
-    @Deprecated
     private void sendPost(String url) {
         try {
             URL obj = new URL(url);
@@ -132,6 +128,7 @@ public class JanetSlack {
         }
         setUsers();
         setUserChannels();
+        sendPost("https://slack.com/api/users.setPresence?token=" + this.token + "&presence=auto");
         this.isConnected = true;
         sendMessage("Connected.");
     }

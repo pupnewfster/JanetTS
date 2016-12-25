@@ -14,10 +14,6 @@
             <url>http://central.maven.org/maven2</url>
         </repository>
         <repository>
-            <id>Redhat GA Repository</id>
-            <url>https://maven.repository.redhat.com/ga/</url>
-        </repository>
-        <repository>
             <id>TeamSpeak-3-Java-API-mvn-repo</id>
             <url>https://raw.githubusercontent.com/TheHolyWaffle/TeamSpeak-3-Java-API/mvn-repo/</url>
             <snapshots>
@@ -41,7 +37,7 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.10.redhat-3</version>
+            <version>0.9.10</version>
         </dependency>
         <dependency>
             <groupId>com.neovisionaries</groupId>
