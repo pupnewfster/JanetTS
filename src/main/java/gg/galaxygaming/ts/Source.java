@@ -5,7 +5,7 @@ public enum Source {
     Slack("Slack"),
     Console("Console");
 
-    private String name;
+    private final String name;
 
     Source(String name) {
         this.name = name;

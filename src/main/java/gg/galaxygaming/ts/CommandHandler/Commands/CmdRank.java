@@ -1,12 +1,13 @@
-package gg.galaxygaming.ts.Commands;
+package gg.galaxygaming.ts.CommandHandler.Commands;
 
 import gg.galaxygaming.ts.Info;
 import gg.galaxygaming.ts.Source;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class CmdRank extends Cmd {
+public class CmdRank implements Cmd {
     @Override
     public boolean performCommand(String[] args, Info info) {
         info.sendMessage(info.getSlackUser().getRankName());
@@ -35,6 +36,6 @@ public class CmdRank extends Cmd {
 
     @Override
     public List<Source> supportedSources() {
-        return Arrays.asList(Source.Slack);
+        return Collections.singletonList(Source.Slack);
     }
 }

@@ -3,7 +3,7 @@ package gg.galaxygaming.ts;
 import java.util.Random;
 
 public class JanetRandom extends Random {
-    private Random[] pies = new Random[]{
+    private final Random[] pies = new Random[]{
             new BlueberryPie(),
             new ChocolatePie(),
             new ApplePie(),

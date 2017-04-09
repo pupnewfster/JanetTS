@@ -1,4 +1,4 @@
-package gg.galaxygaming.ts.Commands;
+package gg.galaxygaming.ts.CommandHandler.Commands;
 
 import gg.galaxygaming.ts.Info;
 import gg.galaxygaming.ts.Source;
@@ -6,9 +6,10 @@ import gg.galaxygaming.ts.Utils;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
-public class CmdCreateDoodle extends Cmd {
+public class CmdCreateDoodle implements Cmd {
     @Override
     public boolean performCommand(String[] args, Info info) {
         if (args.length < 3) {
@@ -21,7 +22,7 @@ public class CmdCreateDoodle extends Cmd {
         double interval = 1;
         if (args.length > 3) {
             String intr = args[3];
-            if (Utils.isLegal(intr)) {
+            if (Utils.legalDouble(intr)) {
                 interval = Double.parseDouble(intr);
                 if (interval <= 0)
                     interval = 1;
@@ -45,7 +46,7 @@ public class CmdCreateDoodle extends Cmd {
         while (e >= s) {
             if (!timeOpts.equals(""))
                 timeOpts += "||";
-            String minutes =  Integer.toString((int) ((s % 1) * 60));
+            String minutes = Integer.toString((int) ((s % 1) * 60));
             if (minutes.length() == 1)
                 minutes = "0" + minutes;
             timeOpts += Integer.toString((int) s) + minutes;
@@ -68,7 +69,7 @@ public class CmdCreateDoodle extends Cmd {
                 day = inf[1];
                 year = inf[2];
             }
-            if (Utils.isLegal(month) && Utils.isLegal(day) && Utils.isLegal(year)) {
+            if (Utils.legalInt(month) && Utils.legalInt(day) && Utils.legalInt(year)) {
                 int mn = Integer.parseInt(month), dn = Integer.parseInt(day);
                 if (mn < 1 || mn > 12 || dn < 1 || dn > 31) //Would be better to check to make sure the month has 31 days...
                     continue;
@@ -91,14 +92,14 @@ public class CmdCreateDoodle extends Cmd {
         if (pieces.length == 0 || pieces.length > 2)
             return -1;
         String hour = pieces[0];
-        if (!Utils.isLegal(hour))
+        if (!Utils.legalDouble(hour))
             return -1;
         double h = Double.parseDouble(hour);
         if (pieces.length == 2) {
             String minutes = pieces[1];
-            if (!Utils.isLegal(minutes))
+            if (!Utils.legalInt(minutes))
                 return -1;
-            h += Integer.parseInt(minutes)/60.0;
+            h += Integer.parseInt(minutes) / 60.0;
         }
         if (conversion.equalsIgnoreCase("PM"))
             h += 12;
@@ -129,6 +130,6 @@ public class CmdCreateDoodle extends Cmd {
 
     @Override
     public List<Source> supportedSources() {
-        return Arrays.asList(Source.Slack);
+        return Collections.singletonList(Source.Slack);
     }
 }

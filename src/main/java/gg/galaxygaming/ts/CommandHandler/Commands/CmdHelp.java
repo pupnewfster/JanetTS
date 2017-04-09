@@ -1,4 +1,4 @@
-package gg.galaxygaming.ts.Commands;
+package gg.galaxygaming.ts.CommandHandler.Commands;
 
 import gg.galaxygaming.ts.Info;
 import gg.galaxygaming.ts.JanetTS;
@@ -9,45 +9,44 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CmdHelp extends Cmd {
+public class CmdHelp implements Cmd {
     @Override
     public boolean performCommand(String[] args, Info info) {
-        int page = 0;
-        if (args.length > 0 && !Utils.isLegal(args[0])) {
+        if (args.length > 0 && !Utils.legalInt(args[0])) {
             info.sendMessage("Error: You must enter a valid help page.");
             return true;
         }
+        int page = 0;
         if (args.length > 0)
             page = Integer.parseInt(args[0]);
         if (args.length == 0 || page <= 0)
             page = 1;
-        int time = 0;
         int rounder = 0;
         ArrayList<String> helpList = JanetTS.getInstance().getCommandHandler().getHelpList(info.getSource());
         if (helpList.size() % 10 != 0)
             rounder = 1;
-        int totalpages = (helpList.size() / 10) + rounder;
-        if (page > totalpages) {
-            info.sendMessage("Error: Input a number from 1 to " + Integer.toString(totalpages));
+        int totalPages = (helpList.size() / 10) + rounder;
+        if (page > totalPages) {
+            info.sendMessage("Error: Input a number from 1 to " + totalPages);
             return true;
         }
-        String m = " ---- Help -- Page " + Integer.toString(page) + "/" + Integer.toString(totalpages) + " ---- \n";
+        int time = 0;
+        StringBuilder m = new StringBuilder(" ---- Help -- Page " + page + "/" + totalPages + " ---- \n");
         page = page - 1;
         String msg;
-        while ((msg = getLine(page, time, helpList)) != null) {
-            m += msg + "\n";
-            time++;
-        }
-        if (page + 1 < totalpages)
-            m += "Type !help " + Integer.toString(page + 2) + " to read the next page.\n";
-        info.sendMessage(m);
+        while ((msg = getLine(page, time++, helpList)) != null)
+            m.append(msg).append("\n");
+        //time++;
+        if (page + 1 < totalPages)
+            m.append("Type !help ").append(page + 2).append(" to read the next page.\n");
+        info.sendMessage(m.toString());
         return true;
     }
 
 
     private String getLine(int page, int time, ArrayList<String> helpList) {
-        page *= 10;
-        return (helpList.size() < time + page + 1 || time == 10) ? null : helpList.get(page + time);
+        //page *= 10;
+        return (helpList.size() < time + (page *= 10) + 1 || time == 10) ? null : helpList.get(page + time);
     }
 
     @Override

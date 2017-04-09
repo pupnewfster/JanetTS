@@ -1,6 +1,8 @@
-package gg.galaxygaming.ts;
+package gg.galaxygaming.ts.CommandHandler;
 
-import gg.galaxygaming.ts.Commands.Cmd;
+import gg.galaxygaming.ts.CommandHandler.Commands.Cmd;
+import gg.galaxygaming.ts.Info;
+import gg.galaxygaming.ts.Source;
 import org.reflections.Reflections;
 
 import java.util.ArrayList;
@@ -8,14 +10,12 @@ import java.util.List;
 import java.util.Set;
 
 public class CommandHandler {
-    private ArrayList<Cmd> cmds = new ArrayList<>();
+    private final ArrayList<Cmd> cmds = new ArrayList<>();
 
-    public void setup() {
-        String path = "gg.galaxygaming.ts.Commands";
+    public CommandHandler(String path) {
         Reflections reflections = new Reflections(path);
         Set<Class<? extends Cmd>> subTypes = reflections.getSubTypesOf(Cmd.class);
-        for (Class c : subTypes)
-            loadCommand(c.getSimpleName(), path + ".");
+        subTypes.forEach(c -> loadCommand(c.getSimpleName(), path + "."));
     }
 
     private void loadCommand(String name, String pkg) {
@@ -23,7 +23,8 @@ public class CommandHandler {
             Cmd command = (Cmd) Cmd.class.getClassLoader().loadClass(pkg + name).newInstance();
             if (command != null)
                 this.cmds.add(command);
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
     }
 
 
@@ -33,7 +34,7 @@ public class CommandHandler {
         if (message.startsWith("!"))
             message = message.replaceFirst("!", "");
         //else if (message.startsWith("/")) //As of the moment we do not have any way to handle slash messages
-            //message = message.replaceFirst("/", "");
+        //message = message.replaceFirst("/", "");
         String command = message.split(" ")[0];
         String arguments = message.replaceFirst(command, "").trim();
         String[] args = arguments.equals("") ? new String[0] : arguments.split(" ");
@@ -53,9 +54,6 @@ public class CommandHandler {
                     }
                     info.sendMessage("Error: This command must be used through " + validSources);
                     return true;
-                } else if (source.equals(Source.TeamSpeak)) {
-                    info.sendMessage("Error: TeamSpeak commands are currently disabled.");
-                    return true;
                 }
                 return cmd.performCommand(args, info);
             }
@@ -63,15 +61,13 @@ public class CommandHandler {
         return false;
     }
 
-    public ArrayList<String> getHelpList(Source source) { //Info will be used for permissions as well or more likely at least being able to get tsuser as well from it
+    public ArrayList<String> getHelpList(Source source) { //Info will be used for permissions as well or more likely at least being able to get TeamSpeak user as well from it
         ArrayList<String> help = new ArrayList<>();
-        for (Cmd cmd : this.cmds) {
-            if (cmd.getName() == null || cmd.getUsage() == null || cmd.helpDoc() == null)
-                continue;
+        this.cmds.stream().filter(cmd -> cmd.getName() != null && cmd.getUsage() != null && cmd.helpDoc() != null).forEach(cmd -> {
             List<Source> sources = cmd.supportedSources();
             if (sources == null || sources.contains(source))
                 help.add(cmd.getUsage() + " ~ " + cmd.helpDoc());
-        }
+        });
         return help;
     }
 }
