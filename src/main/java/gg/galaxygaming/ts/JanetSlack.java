@@ -23,7 +23,7 @@ public class JanetSlack {
     private WebSocket ws;
     private URL hookURL;
 
-    public JanetSlack(JanetConfig config) {
+    JanetSlack(JanetConfig config) {
         this.token = config.getString("SlackToken");
         this.janet_id = config.getString("janetSID");
         String hook = config.getString("WebHook");

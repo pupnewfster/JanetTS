@@ -29,7 +29,6 @@ public class JanetTS {
     private final List<DevInfo> devs = new ArrayList<>();
     private final CommandHandler cmdHandler = new CommandHandler("gg.galaxygaming.ts.CommandHandler.Commands");
     private final JanetConfig janetConfig = new JanetConfig();
-    private final JanetRandom random = new JanetRandom();
     private final JanetSlack slack;
     //private RankManager pm = new RankManager();
     private final QueryManager qm = new QueryManager();
@@ -103,6 +102,7 @@ public class JanetTS {
         return config;
     }
 
+    @SuppressWarnings({"SameParameterValue", "WeakerAccess"})
     public void sendTSMessage(String message) {
         getApi().sendChannelMessage(message);
     }
@@ -166,8 +166,9 @@ public class JanetTS {
     }
 
     public class DevInfo {
-        private String slackID, name;
-        private int siteID;
+        private final String slackID;
+        private final String name;
+        private final int siteID;
 
         private DevInfo(JsonObject dev) {
             this.siteID = dev.getInteger("siteID");
@@ -204,16 +205,8 @@ public class JanetTS {
         return this.slack;
     }
 
-    /*public JanetAI getAI() {
-        return this.ai;
-    }*/
-
     public QueryManager getQM() {
         return this.qm;
-    }
-
-    public JanetRandom getRandom() {
-        return this.random;
     }
 
     /*public RankManager getPermissionManager() {

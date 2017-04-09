@@ -104,7 +104,7 @@ class PermissionManager {
     }
 
     public Permission getPermission(String uid, String perm) {
-        HashMap<String, Permission> permissions = new HashMap<>();
+        HashMap<String, Permission> permissions;
         TS3Api api = JanetTS.getApi();
 
         JanetTS.getInstance().getSlack().sendMessage("" + System.nanoTime());

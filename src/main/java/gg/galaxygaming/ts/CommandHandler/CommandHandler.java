@@ -12,6 +12,7 @@ import java.util.Set;
 public class CommandHandler {
     private final ArrayList<Cmd> cmds = new ArrayList<>();
 
+    @SuppressWarnings("SameParameterValue")
     public CommandHandler(String path) {
         Reflections reflections = new Reflections(path);
         Set<Class<? extends Cmd>> subTypes = reflections.getSubTypesOf(Cmd.class);
@@ -43,14 +44,14 @@ public class CommandHandler {
             if (cmd.getName().equalsIgnoreCase(command) || (cmd.getAliases() != null && cmd.getAliases().contains(command.toLowerCase()))) {
                 List<Source> sources = cmd.supportedSources();
                 if (sources != null && !sources.contains(source)) {
-                    String validSources = "";
+                    StringBuilder validSources = new StringBuilder();
                     for (int i = 0; i < sources.size(); i++) {
-                        if (!validSources.equals("")) {
-                            validSources += (i == 2 && i == sources.size()) ? " " : ", ";
+                        if (!validSources.toString().equals("")) {
+                            validSources.append((i == 2 && i == sources.size()) ? " " : ", ");
                             if (i == sources.size())
-                                validSources += "or ";
+                                validSources.append("or ");
                         }
-                        validSources += sources.get(i);
+                        validSources.append(sources.get(i));
                     }
                     info.sendMessage("Error: This command must be used through " + validSources);
                     return true;

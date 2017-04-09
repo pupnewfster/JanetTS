@@ -33,23 +33,26 @@ public class CmdCreateDoodle implements Cmd {
             return true;
         }
         String start = times[0], end = times[1];
-        String timeInfo = "", month, day, year;
+        StringBuilder timeInfo = new StringBuilder();
+        String month;
+        String day;
+        String year;
         Calendar c = Calendar.getInstance();
         String curMonth = Integer.toString(c.get(Calendar.MONTH) + 1);
         String curYear = Integer.toString(c.get(Calendar.YEAR));
-        String timeOpts = "";
+        StringBuilder timeOpts = new StringBuilder();
         double s = to24Hour(start), e = to24Hour(end);
         if (s == -1 || e == -1) {
             info.sendMessage("Error: The given time is not valid.");
             return true;
         }
         while (e >= s) {
-            if (!timeOpts.equals(""))
-                timeOpts += "||";
+            if (!timeOpts.toString().equals(""))
+                timeOpts.append("||");
             String minutes = Integer.toString((int) ((s % 1) * 60));
             if (minutes.length() == 1)
                 minutes = "0" + minutes;
-            timeOpts += Integer.toString((int) s) + minutes;
+            timeOpts.append(Integer.toString((int) s)).append(minutes);
             s += interval;
         }
         for (String date : dates) {
@@ -79,7 +82,7 @@ public class CmdCreateDoodle implements Cmd {
                 month = "0" + month;
             if (day.length() == 1)
                 day = "0" + day;
-            timeInfo += "&" + year + month + day + "=" + timeOpts;
+            timeInfo.append("&").append(year).append(month).append(day).append("=").append(timeOpts);
         }
         info.sendMessage("http://doodle.com/create?type=date&locale=en&location=Teamspeak&description=Auto%20generated%20Janet%20meeting&title=" + title + "&name=Janet" + timeInfo);
         return true;
