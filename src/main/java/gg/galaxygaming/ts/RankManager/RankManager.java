@@ -37,6 +37,8 @@ public class RankManager {
         properties.setProperty("password", config.getString("dbPassword"));
         properties.setProperty("useSSL", "false");
         properties.setProperty("autoReconnect", "true");
+        properties.setProperty("useLegacyDatetimeCode", "false");
+        properties.setProperty("serverTimezone", "EST");
         if (JanetTS.getApi().getClients() != null)
             checkAll();
     }
@@ -92,12 +94,12 @@ public class RankManager {
                         int ncID = api.createChannel(cname, properties);
                         api.setClientChannelGroup(this.caID, ncID, dbID);
                         api.moveQuery(JanetTS.getDefaultChannelID());
-                        stmt.executeQuery("UPDATE cms_custom_database_2 SET field_4 = " + ncID + " WHERE member_id = \"" + siteID + "\"");
+                        stmt.executeUpdate("UPDATE cms_custom_database_2 SET field_4 = " + ncID + " WHERE member_id = \"" + siteID + "\"");
                     } else if (room != client.getChannelId() || this.caID != client.getChannelGroupId()) //Add them to admin for their room
                         api.setClientChannelGroup(this.caID, room, dbID); //If they are in the room already don't bother giving it again, otherwise do just in case
                 } else if (room != -1) { //Room needs to be removed because they are not a silver or gold supporter
                     api.deleteChannel(room, true);
-                    stmt.executeQuery("UPDATE cms_custom_database_2 SET field_4 = -1 WHERE member_id = \"" + siteID + "\"");
+                    stmt.executeUpdate("UPDATE cms_custom_database_2 SET field_4 = -1 WHERE member_id = \"" + siteID + "\"");
                 }
                 List<ServerGroup> sgroups = api.getServerGroupsByClient(client);
                 for (ServerGroup sgroup : sgroups)
